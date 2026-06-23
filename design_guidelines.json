@@ -1,0 +1,82 @@
+{
+  "theme": "Dark",
+  "archetype": "Material Design 3 / Professional Portfolio",
+  "colors": {
+    "background": "#121212",
+    "surface": "#1E1E1E",
+    "surface_container": "#282828",
+    "primary": {
+      "DEFAULT": "#A8C7FA",
+      "foreground": "#062E6F"
+    },
+    "primary_container": {
+      "DEFAULT": "#004A77",
+      "foreground": "#D3E3FD"
+    },
+    "secondary": {
+      "DEFAULT": "#7DDA9A",
+      "foreground": "#00391C"
+    },
+    "secondary_container": {
+      "DEFAULT": "#005234",
+      "foreground": "#98F7B6"
+    }
+  },
+  "typography": {
+    "heading_font": "Outfit",
+    "body_font": "Roboto",
+    "scale": {
+      "h1": "text-5xl sm:text-6xl tracking-tight font-bold",
+      "h2": "text-3xl sm:text-4xl tracking-tight font-semibold",
+      "h3": "text-2xl sm:text-3xl font-medium",
+      "body": "text-base leading-relaxed text-gray-300",
+      "labels": "text-sm uppercase tracking-widest text-gray-400"
+    }
+  },
+  "spacing_and_layout": {
+    "philosophy": "Generous spacing. Mobile-first grids. Material Design 3 soft corners.",
+    "border_radius": {
+      "cards": "rounded-[24px] or rounded-3xl",
+      "buttons": "rounded-full"
+    },
+    "section_padding": "py-20 md:py-32 px-6 md:px-12",
+    "grid_strategy": "Bento grid for projects. Asymmetric card layouts for experience."
+  },
+  "motion_and_interactions": {
+    "hover_states": "Cards: scale up by 1.02, elevate shadow (MD3 shadow-lg). Buttons: brightness up or simulated ripple.",
+    "buttons": "Pill-shaped (rounded-full), hover states must increase contrast."
+  },
+  "components": {
+    "buttons": "Shadcn UI customized for full rounded corners (rounded-full). Primary bg-primary text-primary-foreground.",
+    "cards": "bg-[#1E1E1E] rounded-3xl p-6 or p-8. No border or very subtle border-white/5.",
+    "navbar": "Floating pill nav: fixed top-4 left-1/2 -translate-x-1/2 bg-[#282828]/80 backdrop-blur-xl rounded-full px-6 py-3 z-50 shadow-lg.",
+    "testing": "All interactive elements MUST have data-testid attributes."
+  },
+  "media": {
+    "hero_background": "https://images.unsplash.com/photo-1710438399422-2fca27686bcd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAxODF8MHwxfHNlYXJjaHwxfHwzZCUyMHByaW50aW50aW5nJTIwYWJzdHJhY3QlMjBkYXJrfGVufDB8fHx8MTc4MjIzOTEzM3ww&ixlib=rb-4.1.0&q=85",
+    "profile_silhouette": "https://images.unsplash.com/photo-1584462746497-276f4aeb9fca?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjh8MHwxfHNlYXJjaHwxfHxkZXZlbG9wZXIlMjBzaWxob3VldHRlJTIwZGFya3xlbnwwfHx8fDE3ODIyMzkxMzN8MA&ixlib=rb-4.1.0&q=85",
+    "dev_projects": [
+      "https://images.unsplash.com/photo-1489875347897-49f64b51c1f8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwyfHxzb2Z0d2FyZSUyMGNvZGUlMjBkYXJrfGVufDB8fHx8MTc4MjIzOTEzM3ww&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1518773553398-650c184e0bb3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwxfHxzb2Z0d2FyZSUyMGNvZGUlMjBkYXJrfGVufDB8fHx8MTc4MjIzOTEzM3ww&ixlib=rb-4.1.0&q=85",
+      "https://images.pexels.com/photos/6424583/pexels-photo-6424583.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+    ],
+    "3d_projects": [
+      "https://images.unsplash.com/photo-1698807390276-725f3a7e41cf?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAxODF8MHwxfHNlYXJjaHwzfHwzZCUyMHByaW50aW50aW5nJTIwYWJzdHJhY3QlMjBkYXJrfGVufDB8fHx8MTc4MjIzOTEzM3ww&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1566410824233-a8011929225c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAxODF8MHwxfHNlYXJjaHwyfHwzZCUyMHByaW50aW50aW5nJTIwYWJzdHJhY3QlMjBkYXJrfGVufDB8fHx8MTc4MjIzOTEzM3ww&ixlib=rb-4.1.0&q=85",
+      "https://images.pexels.com/photos/13156181/pexels-photo-13156181.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Configure Tailwind with the exact colors specified in the 'colors' block. Map them effectively to MD3 semantic concepts.",
+    "Build a single-page portfolio with smooth scrolling navigation.",
+    "Implement Google Material Design 3 aesthetics: Use 'rounded-3xl' for big cards, and 'rounded-full' for floating headers and primary buttons. Incorporate elevation via background lightness (background -> surface -> surface_container).",
+    "Use 'Outfit' for headings and 'Roboto' for body text (import via Google Fonts).",
+    "Sections required: Hero, About, Skills, Projects, Experience Timeline, Contact.",
+    "Projects section should be split visually or via tabs into 'Dev Projects' and '3D Printing'. Use the media array images for placeholder cards.",
+    "Experience Timeline should showcase 12+ years of corporate and freelance history.",
+    "Contact section must clearly highlight the email 'skr@zasdevlabs.tech' and website 'zasdevlabs.tech'.",
+    "All interactive elements (buttons, links, form inputs if any) MUST have a 'data-testid' attribute (e.g., data-testid='contact-email-link').",
+    "Use Phosphor icons or Lucide React for professional iconography.",
+    "No auth required. Focus strictly on visual presentation and mobile responsiveness."
+  ]
+}

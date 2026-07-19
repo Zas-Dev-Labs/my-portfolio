@@ -29,11 +29,23 @@ Build a personal portfolio website for Sashi Kiran Rao — Web & Mobile Develope
 ## What's Implemented (Jun 23, 2025)
 - [x] Full single-page portfolio MVP
 - [x] Dark Material Design 3 aesthetic
-- [x] Floating pill navigation
+- [x] Floating pill navigation with Z logo mark + social icons
 - [x] Responsive (mobile-first)
 - [x] All sections with real content
 - [x] Project placeholders (Dev + 3D, 3 each)
-- [x] 100% test pass rate
+- [x] Logo placeholder (Z mark, blue-green gradient) in Navbar + Footer
+- [x] GitHub and Instagram placeholder social links (Navbar, Contact, Footer)
+- [x] Contact form with Resend email integration
+- [x] Emails route to mskiranrao@gmail.com (temporary — pending zasdevlabs.tech domain verification)
+
+## Resend Domain Setup (Pending)
+To receive form submissions at skr@zasdevlabs.tech:
+1. Go to https://resend.com/domains
+2. Add zasdevlabs.tech → add DNS records to your domain registrar
+3. Once verified, update backend/.env:
+   - SENDER_EMAIL=noreply@zasdevlabs.tech
+   - OWNER_EMAIL=skr@zasdevlabs.tech
+4. Restart backend: sudo supervisorctl restart backend
 
 ## Backlog / Next Steps
 ### P0 (High Priority)

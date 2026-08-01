@@ -1,3 +1,9 @@
 {
-  "ignore": ["node_modules/**", "build/**"]
+  "ignorePatterns": ["node_modules/**", "build/**"],
+  "ignore": ["node_modules/**", "build/**"],
+  "overrides": [],
+  "globals": {
+    "registration": "readonly",
+    "_": "readonly"
+  }
 }

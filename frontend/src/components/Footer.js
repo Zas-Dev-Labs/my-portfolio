@@ -1,13 +1,15 @@
 import React from 'react';
 import { Mail, Globe, ArrowUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Logo from './Logo';
 
 const quickLinks = [
-  { label: 'About', href: '#about' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Experience', href: '#experience' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'About', href: '#about', external: false },
+  { label: 'Skills', href: '#skills', external: false },
+  { label: 'Projects', href: '#projects', external: false },
+  { label: 'Experience', href: '#experience', external: false },
+  { label: 'Contact', href: '#contact', external: false },
+  { label: 'Privacy Policy', href: '/privacy-policy', external: true },
 ];
 
 // TODO: Replace # with actual social profile URLs when ready
@@ -78,13 +80,23 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {quickLinks.map((link) => (
                 <li key={link.href}>
-                  <button
-                    data-testid={`footer-link-${link.label.toLowerCase()}`}
-                    onClick={() => scrollTo(link.href)}
-                    className="text-sm text-gray-400 hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </button>
+                  {link.external ? (
+                    <Link
+                      to={link.href}
+                      data-testid={`footer-link-${link.label.toLowerCase().replace(/ /g, '-')}`}
+                      className="text-sm text-gray-400 hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <button
+                      data-testid={`footer-link-${link.label.toLowerCase()}`}
+                      onClick={() => scrollTo(link.href)}
+                      className="text-sm text-gray-400 hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

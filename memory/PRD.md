@@ -36,7 +36,8 @@ Build a personal portfolio website for Sashi Kiran Rao — Web & Mobile Develope
 - [x] Logo placeholder (Z mark, blue-green gradient) in Navbar + Footer
 - [x] GitHub and Instagram placeholder social links (Navbar, Contact, Footer)
 - [x] Contact form with Resend email integration
-- [x] Emails route to mskiranrao@gmail.com (temporary — pending zasdevlabs.tech domain verification)
+- [x] Privacy Policy standalone page (/privacy-policy) with 9 sections, sticky header, back-to-portfolio nav
+- [x] Privacy Policy link added to Footer Quick Links
 
 ## Resend Domain Setup (Pending)
 To receive form submissions at skr@zasdevlabs.tech:

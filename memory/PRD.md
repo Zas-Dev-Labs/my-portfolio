@@ -39,7 +39,8 @@ Build a personal portfolio website for Sashi Kiran Rao — Web & Mobile Develope
 - [x] Privacy Policy standalone page (/privacy-policy) with 9 sections, sticky header, back-to-portfolio nav
 - [x] Privacy Policy link added to Footer Quick Links
 - [x] Profile photo added to Hero section (circular, gradient ring, floating badge)
-- [x] Expense Tracker Android app card added to Dev Projects (replaces Mobile Commerce App)
+- [x] Color palette refreshed to match logo exactly: primary #00BFFF (electric blue), secondary #32CD32 (lime green)
+- [x] Expense Tracker privacy policy dates updated to August 2026
 - [x] Standalone HTML privacy policy for Expense Tracker at /expense-tracker-privacy.html (13 sections, Google Play Store ready)
 - [x] Privacy Policy link on Expense Tracker project card
 

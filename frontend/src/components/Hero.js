@@ -16,15 +16,15 @@ export default function Hero() {
       {/* Ambient gradient orbs */}
       <div
         className="absolute top-1/4 -left-48 w-[600px] h-[600px] rounded-full opacity-30 animate-pulse-slow pointer-events-none"
-        style={{ background: 'radial-gradient(circle, #004A77 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(circle, #003A5C 0%, transparent 70%)' }}
       />
       <div
         className="absolute bottom-1/4 -right-48 w-[500px] h-[500px] rounded-full opacity-20 animate-pulse-slow pointer-events-none"
-        style={{ background: 'radial-gradient(circle, #005234 0%, transparent 70%)', animationDelay: '1.5s' }}
+        style={{ background: 'radial-gradient(circle, #0A3D0A 0%, transparent 70%)', animationDelay: '1.5s' }}
       />
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px opacity-20 pointer-events-none"
-        style={{ background: 'linear-gradient(90deg, transparent, #A8C7FA, #7DDA9A, transparent)' }}
+        style={{ background: 'linear-gradient(90deg, transparent, #00BFFF, #32CD32, transparent)' }}
       />
 
       <div className="relative z-10 w-full mx-auto px-6 md:px-12 pt-28 pb-20">
@@ -112,12 +112,12 @@ export default function Hero() {
               {/* Glow ring */}
               <div
                 className="absolute inset-0 rounded-full opacity-40 blur-2xl scale-110 pointer-events-none"
-                style={{ background: 'linear-gradient(135deg, #004A77, #005234)' }}
+                style={{ background: 'linear-gradient(135deg, #003A5C, #0A3D0A)' }}
               />
               {/* Border ring */}
               <div
                 className="absolute -inset-1 rounded-full opacity-60 pointer-events-none"
-                style={{ background: 'linear-gradient(135deg, #A8C7FA 0%, #7DDA9A 100%)', padding: '2px' }}
+                style={{ background: 'linear-gradient(135deg, #00BFFF 0%, #32CD32 100%)', padding: '2px' }}
               >
                 <div className="w-full h-full rounded-full bg-background" />
               </div>

@@ -27,18 +27,18 @@
 
 @layer utilities {
   .gradient-text {
-    background: linear-gradient(135deg, #A8C7FA, #7DDA9A);
+    background: linear-gradient(135deg, #00BFFF, #32CD32);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .orb-blue {
-    background: radial-gradient(circle, rgba(0, 74, 119, 0.4) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(0, 58, 92, 0.5) 0%, transparent 70%);
   }
 
   .orb-green {
-    background: radial-gradient(circle, rgba(0, 82, 52, 0.3) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(10, 61, 10, 0.4) 0%, transparent 70%);
   }
 }
 

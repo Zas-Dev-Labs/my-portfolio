@@ -1,5 +1,5 @@
 {
-  "ignorePatterns": ["node_modules/**", "build/**"],
+  "ignorePatterns": ["**/node_modules/**", "**/build/**"],
   "globals": {
     "registration": "readonly",
     "_": "readonly"

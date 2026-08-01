@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Expense Tracker | ZasDevLabs</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #121212;
+      color: #e5e7eb;
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    a { color: #A8C7FA; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Header */
+    .header {
+      background: #1E1E1E;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .header-logo {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      object-fit: cover;
+    }
+    .header-name {
+      font-weight: 700;
+      color: #A8C7FA;
+      font-size: 15px;
+    }
+    .header-back {
+      font-size: 13px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .header-back:hover { color: #A8C7FA; text-decoration: none; }
+    .arrow { font-size: 16px; }
+
+    /* Hero */
+    .hero {
+      background: #1E1E1E;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 48px 24px 40px;
+    }
+    .hero-inner {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(168,199,250,0.1);
+      border: 1px solid rgba(168,199,250,0.2);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 11px;
+      color: #A8C7FA;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .hero p {
+      color: #9ca3af;
+      max-width: 620px;
+      font-size: 15px;
+    }
+    .meta {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .meta span { display: flex; align-items: center; gap: 5px; }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #7DDA9A;
+      display: inline-block;
+    }
+
+    /* Content */
+    .content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .section {
+      background: #1E1E1E;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 20px;
+      padding: 28px 30px;
+      margin-bottom: 16px;
+    }
+    .section h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-num {
+      background: rgba(168,199,250,0.12);
+      color: #A8C7FA;
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .section p, .section li {
+      color: #9ca3af;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .section ul {
+      padding-left: 20px;
+      margin-top: 8px;
+    }
+    .section ul li { margin-bottom: 4px; }
+    .section p + p { margin-top: 10px; }
+
+    .highlight {
+      color: #A8C7FA;
+      font-weight: 500;
+    }
+    .highlight-green {
+      color: #7DDA9A;
+      font-weight: 500;
+    }
+
+    /* Footer */
+    .footer {
+      background: #282828;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 24px;
+      text-align: center;
+    }
+    .footer p {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .footer a { color: #9ca3af; }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 24px; }
+      .section { padding: 22px 20px; }
+      .header-back span:last-child { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="/" class="header-brand">
+      <img src="/logo.jpg" alt="ZasDevLabs" class="header-logo" />
+      <span class="header-name">ZasDevLabs</span>
+    </a>
+    <a href="/" class="header-back">
+      <span class="arrow">&#8592;</span>
+      <span>Back to Portfolio</span>
+    </a>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <span>&#128241;</span> Android Application
+      </div>
+      <h1>Privacy Policy<br /><span style="color:#A8C7FA;">Expense Tracker</span></h1>
+      <p>
+        This Privacy Policy describes how <strong style="color:#e5e7eb;">ZasDevLabs</strong>
+        (operated by Sashi Kiran Rao) collects, uses, and protects your information when you
+        use the <strong style="color:#e5e7eb;">Expense Tracker</strong> Android application.
+      </p>
+      <div class="meta">
+        <span><span class="dot"></span> Effective Date: June 2025</span>
+        <span>&#183; Last Updated: June 2025</span>
+        <span>&#183; App Version: 1.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <main class="content">
+
+    <div class="section">
+      <h2><span class="section-num">1</span> Overview</h2>
+      <p>
+        <span class="highlight">Expense Tracker</span> is a personal finance application that
+        helps you manage and track your expenses across multiple bank accounts and payment apps.
+        The app is designed with your privacy in mind — it can operate fully
+        <span class="highlight-green">offline</span>, and we collect only what is strictly
+        necessary to provide core functionality.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">2</span> Information We Collect</h2>
+      <p>We collect the following categories of information:</p>
+      <ul>
+        <li>
+          <span class="highlight">Account Information:</span> When you create an account or
+          log in, we collect your name, email address, and authentication credentials. This
+          information is used solely to identify your session and secure your data.
+        </li>
+        <li>
+          <span class="highlight">Expense &amp; Financial Data:</span> Transaction records,
+          amounts, categories, dates, and notes that you manually enter or capture within the
+          app. This data is stored on your device and, where applicable, synced to our secure
+          servers.
+        </li>
+        <li>
+          <span class="highlight">Camera Access:</span> The app requests access to your
+          device camera to capture photos of receipts or expense documents. Images are
+          processed locally on your device and used only for the purpose you initiate. We do
+          not store or transmit raw camera images to our servers without your explicit action.
+        </li>
+        <li>
+          <span class="highlight">Device Information:</span> Basic device identifiers (OS
+          version, device model) may be collected for analytics and crash reporting purposes.
+        </li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">3</span> How We Use Your Information</h2>
+      <p>Your information is used to:</p>
+      <ul>
+        <li>Authenticate and maintain your account session</li>
+        <li>Store, organize, and display your expense records</li>
+        <li>Enable receipt capture via the device camera</li>
+        <li>Provide offline access to your financial data</li>
+        <li>Improve app performance and fix bugs through anonymized analytics</li>
+        <li>Respond to support requests</li>
+      </ul>
+      <p>
+        We do <span class="highlight">not</span> use your data for advertising, profiling,
+        or sale to third parties.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">4</span> Offline Functionality &amp; Data Storage</h2>
+      <p>
+        Expense Tracker is built to work <span class="highlight-green">fully offline</span>.
+        Your expense data is stored locally on your device first, ensuring access at all times
+        without an internet connection.
+      </p>
+      <p>
+        When connectivity is available, data may be synced to secure cloud storage to enable
+        backup and multi-device access. All data in transit is encrypted using HTTPS/TLS.
+        Locally stored data is protected by your device's built-in security mechanisms.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">5</span> Analytics</h2>
+      <p>
+        The app uses limited analytics to understand general usage patterns, identify crashes,
+        and improve stability. At the current stage, analytics collection is minimal and does
+        not include personally identifiable information.
+      </p>
+      <p>
+        Analytics data is anonymized and aggregated. It is not used to identify individual
+        users. You may opt out of analytics in the app's settings.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">6</span> Camera Permission</h2>
+      <p>
+        The app requests <span class="highlight">CAMERA</span> permission to allow you to
+        photograph receipts and expense documents directly within the app. This permission
+        is used only when you actively initiate a capture action.
+      </p>
+      <p>
+        The app does not access the camera in the background, and captured images are not
+        shared with any third party without your explicit action.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">7</span> Data Sharing &amp; Third Parties</h2>
+      <p>We do <span class="highlight">not</span> sell, rent, or share your personal data with third parties for marketing purposes. Data may be shared only in the following circumstances:</p>
+      <ul>
+        <li>With service providers who assist in operating the app (e.g. cloud infrastructure, analytics) under strict confidentiality agreements</li>
+        <li>When required by law, regulation, or valid legal process</li>
+        <li>To protect the safety or rights of users or the public</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">8</span> Data Retention</h2>
+      <p>
+        Your expense data is retained for as long as your account is active. If you delete
+        your account, all associated data will be permanently removed from our servers within
+        30 days. Locally stored data on your device must be removed manually.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">9</span> Your Rights</h2>
+      <p>You have the right to:</p>
+      <ul>
+        <li>Access the personal data we hold about you</li>
+        <li>Request correction of inaccurate data</li>
+        <li>Request deletion of your account and all associated data</li>
+        <li>Withdraw camera or storage permissions at any time via device settings</li>
+        <li>Opt out of analytics within the app settings</li>
+      </ul>
+      <p>To exercise any of these rights, contact us at <a href="mailto:skr@zasdevlabs.tech">skr@zasdevlabs.tech</a>.</p>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">10</span> Children's Privacy</h2>
+      <p>
+        Expense Tracker is not directed at children under the age of 13. We do not knowingly
+        collect personal information from children. If you believe a child has used this app
+        and provided personal data, please contact us immediately and we will take steps to
+        remove that information.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">11</span> Security</h2>
+      <p>
+        We implement industry-standard security measures including HTTPS/TLS encryption for
+        data in transit, secure authentication protocols, and access controls on our servers.
+        However, no system is 100% secure — we encourage you to use a strong password and
+        keep your device software up to date.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">12</span> Changes to This Policy</h2>
+      <p>
+        We may update this Privacy Policy as the app evolves. When we do, the "Last Updated"
+        date at the top of this page will be revised. For significant changes, we will notify
+        you via an in-app message or email. Continued use of the app after changes constitutes
+        acceptance of the revised policy.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2><span class="section-num">13</span> Contact Us</h2>
+      <p>If you have any questions or concerns about this Privacy Policy or how your data is handled, please reach out:</p>
+      <ul>
+        <li><span class="highlight">Developer:</span> Sashi Kiran Rao</li>
+        <li><span class="highlight">Business:</span> ZasDevLabs</li>
+        <li><span class="highlight">Email:</span> <a href="mailto:skr@zasdevlabs.tech">skr@zasdevlabs.tech</a></li>
+        <li><span class="highlight">Website:</span> <a href="https://zasdevlabs.tech" target="_blank">zasdevlabs.tech</a></li>
+      </ul>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 Sashi Kiran Rao &middot; ZasDevLabs. All rights reserved.</p>
+    <p style="margin-top:6px;"><a href="/">Back to Portfolio</a> &nbsp;&#183;&nbsp; <a href="mailto:skr@zasdevlabs.tech">skr@zasdevlabs.tech</a></p>
+  </footer>
+
+</body>
+</html>

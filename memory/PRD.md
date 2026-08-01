@@ -38,6 +38,10 @@ Build a personal portfolio website for Sashi Kiran Rao — Web & Mobile Develope
 - [x] Contact form with Resend email integration
 - [x] Privacy Policy standalone page (/privacy-policy) with 9 sections, sticky header, back-to-portfolio nav
 - [x] Privacy Policy link added to Footer Quick Links
+- [x] Profile photo added to Hero section (circular, gradient ring, floating badge)
+- [x] Expense Tracker Android app card added to Dev Projects (replaces Mobile Commerce App)
+- [x] Standalone HTML privacy policy for Expense Tracker at /expense-tracker-privacy.html (13 sections, Google Play Store ready)
+- [x] Privacy Policy link on Expense Tracker project card
 
 ## Resend Domain Setup (Pending)
 To receive form submissions at skr@zasdevlabs.tech:

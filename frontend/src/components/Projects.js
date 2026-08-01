@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, Code2, Printer, Tag } from 'lucide-react';
+import { ExternalLink, Code2, Printer, Tag, Shield } from 'lucide-react';
 
 const devProjects = [
   {
@@ -11,12 +11,13 @@ const devProjects = [
     image: 'https://images.unsplash.com/photo-1489875347897-49f64b51c1f8?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
   },
   {
-    title: 'Mobile Commerce App',
+    title: 'Expense Tracker',
     description:
-      'Cross-platform mobile application with seamless UX and integrated payment solutions. Features AI-driven product recommendations.',
-    tags: ['Mobile', 'TypeScript', 'AI', 'Payments'],
-    status: 'In Development',
-    image: 'https://images.unsplash.com/photo-1518773553398-650c184e0bb3?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
+      'A personal finance Android app to track expenses across multiple bank accounts and payment apps. Features camera-based receipt capture, offline mode, and smart categorisation.',
+    tags: ['Android', 'Kotlin', 'Camera API', 'Offline', 'Finance'],
+    status: 'Publishing Soon',
+    image: 'https://images.unsplash.com/photo-1782898669120-53aac9b0464e?crop=entropy&cs=srgb&fm=jpg&w=600&q=85',
+    privacyPolicyLink: '/expense-tracker-privacy.html',
   },
   {
     title: 'Smart Dashboard Suite',
@@ -56,6 +57,8 @@ const printProjects = [
 ];
 
 function ProjectCard({ project, index }) {
+  const isPublishingSoon = project.status === 'Publishing Soon';
+
   return (
     <div
       data-testid={`project-card-${index}`}
@@ -69,7 +72,11 @@ function ProjectCard({ project, index }) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
-        <span className="absolute top-3 right-3 bg-primary-container/80 text-primary text-[10px] font-semibold px-3 py-1 rounded-full border border-primary/30 backdrop-blur-sm">
+        <span className={`absolute top-3 right-3 text-[10px] font-semibold px-3 py-1 rounded-full border backdrop-blur-sm ${
+          isPublishingSoon
+            ? 'bg-secondary-container/80 text-secondary border-secondary/30'
+            : 'bg-primary-container/80 text-primary border-primary/30'
+        }`}>
           {project.status}
         </span>
       </div>
@@ -94,14 +101,30 @@ function ProjectCard({ project, index }) {
           ))}
         </div>
 
-        <button
-          data-testid={`project-link-${index}`}
-          className="flex items-center gap-1.5 text-xs text-primary hover:text-secondary transition-colors font-medium group/btn"
-          disabled
-        >
-          <ExternalLink size={12} className="group-hover/btn:translate-x-0.5 transition-transform" />
-          Coming Soon
-        </button>
+        {/* Links row */}
+        <div className="flex items-center gap-4">
+          <button
+            data-testid={`project-link-${index}`}
+            className="flex items-center gap-1.5 text-xs text-primary hover:text-secondary transition-colors font-medium group/btn"
+            disabled
+          >
+            <ExternalLink size={12} className="group-hover/btn:translate-x-0.5 transition-transform" />
+            Coming Soon
+          </button>
+
+          {project.privacyPolicyLink && (
+            <a
+              href={project.privacyPolicyLink}
+              data-testid={`project-privacy-link-${index}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-secondary transition-colors font-medium"
+            >
+              <Shield size={11} />
+              Privacy Policy
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );

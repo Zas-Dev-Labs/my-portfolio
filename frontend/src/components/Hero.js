@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowDown, Code2, Printer, Sparkles } from 'lucide-react';
+import Logo from './Logo';
 
 export default function Hero() {
   const scrollTo = (href) => {
@@ -35,7 +36,7 @@ export default function Hero() {
             {/* Available badge */}
             <div
               data-testid="hero-available-badge"
-              className="inline-flex items-center gap-2 bg-surface/80 border border-white/10 rounded-full px-4 py-1.5 mb-8"
+              className="inline-flex items-center gap-2 bg-surface/80 border border-white/10 rounded-full px-4 py-1.5 mb-6"
             >
               <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
               <span className="text-xs text-gray-400 tracking-widest uppercase font-medium">
@@ -43,10 +44,23 @@ export default function Hero() {
               </span>
             </div>
 
-            {/* Brand line */}
-            <p className="text-sm uppercase tracking-widest text-gray-500 mb-3 font-medium">
-              ZasDevLabs
-            </p>
+            {/* Prominent Brand Logo & Name in Hero */}
+            <div
+              data-testid="hero-brand"
+              className="flex items-center gap-3.5 mb-6 bg-surface/80 border border-white/10 p-2.5 pr-6 rounded-2xl w-fit backdrop-blur-md shadow-xl group hover:border-primary/40 transition-all duration-300"
+            >
+              <div className="shrink-0 p-1.5 bg-[#181818] rounded-xl border border-white/10 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <Logo size={44} />
+              </div>
+              <div>
+                <div className="font-heading text-xl sm:text-2xl font-bold text-white tracking-wide leading-tight">
+                  Zas<span className="text-primary">DevLabs</span>
+                </div>
+                <div className="text-[11px] text-secondary font-semibold uppercase tracking-wider mt-0.5">
+                  Software &amp; Digital Solutions
+                </div>
+              </div>
+            </div>
 
             {/* Name */}
             <h1 className="font-heading text-5xl sm:text-6xl font-bold leading-tight mb-5">
@@ -123,7 +137,7 @@ export default function Hero() {
               </div>
               {/* Photo */}
               <img
-                src="/profile.webp"
+                src="/profile.jpg"
                 alt="Sashi Kiran Rao"
                 data-testid="hero-profile-photo"
                 className="relative w-52 h-52 md:w-72 md:h-72 rounded-full object-cover object-top border-2 border-white/10"

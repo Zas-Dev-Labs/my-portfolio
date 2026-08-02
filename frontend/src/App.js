@@ -10,6 +10,7 @@ import Experience from './components/Experience';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import Admin from './components/Admin';
 
 function Portfolio() {
   return (
@@ -32,6 +33,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Portfolio />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/login" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );

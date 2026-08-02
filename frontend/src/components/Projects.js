@@ -1,130 +1,102 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ExternalLink, Code2, Printer, Tag, Shield } from 'lucide-react';
-
-const devProjects = [
-  {
-    title: 'AI-Powered Web Platform',
-    description:
-      'A full-stack web application leveraging large language models for intelligent automation and seamless user interactions. Built with React and FastAPI.',
-    tags: ['React', 'FastAPI', 'AI/LLM', 'MongoDB'],
-    status: 'In Development',
-    image: 'https://images.unsplash.com/photo-1489875347897-49f64b51c1f8?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
-  },
-  {
-    title: 'Expense Tracker',
-    description:
-      'A personal finance Android app to track expenses across multiple bank accounts and payment apps. Features camera-based receipt capture, offline mode, and smart categorisation.',
-    tags: ['Android', 'Kotlin', 'Camera API', 'Offline', 'Finance'],
-    status: 'Publishing Soon',
-    image: 'https://images.unsplash.com/photo-1782898669120-53aac9b0464e?crop=entropy&cs=srgb&fm=jpg&w=600&q=85',
-    privacyPolicyLink: '/expense-tracker-privacy.html',
-  },
-  {
-    title: 'Smart Dashboard Suite',
-    description:
-      'Enterprise-grade analytics dashboard with real-time data visualization and AI-powered business intelligence insights.',
-    tags: ['Angular', 'Data Viz', 'Enterprise', 'AI'],
-    status: 'In Development',
-    image: 'https://images.pexels.com/photos/6424583/pexels-photo-6424583.jpeg?auto=compress&cs=tinysrgb&w=600',
-  },
-];
-
-const printProjects = [
-  {
-    title: 'Mechanical Gear Assembly',
-    description:
-      'Precision-engineered interlocking gear system designed for educational demonstrations. Optimized for FDM printing with minimal support structures.',
-    tags: ['Mechanical', 'FDM', 'CAD', 'Educational'],
-    status: 'In Development',
-    image: 'https://images.unsplash.com/photo-1698807390276-725f3a7e41cf?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
-  },
-  {
-    title: 'Custom Enclosure Design',
-    description:
-      'Functional protective housing for electronic components, designed with ventilation and cable management in mind. Material-optimized for durability.',
-    tags: ['Enclosure', 'Electronics', 'Functional', 'CAD'],
-    status: 'In Development',
-    image: 'https://images.unsplash.com/photo-1566410824233-a8011929225c?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
-  },
-  {
-    title: 'Artistic Sculpture Series',
-    description:
-      'A collection of abstract geometric sculptures exploring the creative limits of additive manufacturing and mathematical form generation.',
-    tags: ['Art', 'Geometric', 'Abstract', 'Sculpture'],
-    status: 'In Development',
-    image: 'https://images.pexels.com/photos/13156181/pexels-photo-13156181.jpeg?auto=compress&cs=tinysrgb&w=600',
-  },
-];
+import { subscribeProjects, INITIAL_DEV_PROJECTS, INITIAL_3D_PROJECTS, isProjectVisible } from '../services/projectService';
 
 function ProjectCard({ project, index }) {
   const isPublishingSoon = project.status === 'Publishing Soon';
+  const isLive = project.status === 'Live' || project.status === 'Completed';
 
   return (
     <div
       data-testid={`project-card-${index}`}
-      className="group bg-surface rounded-3xl overflow-hidden border border-white/5 hover:border-primary/25 hover:scale-[1.02] transition-all duration-300"
+      className="group bg-surface rounded-3xl overflow-hidden border border-white/5 hover:border-primary/25 hover:scale-[1.02] transition-all duration-300 flex flex-col justify-between"
     >
-      {/* Image */}
-      <div className="relative h-44 overflow-hidden">
-        <img
-          src={project.image}
-          alt={project.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
-        <span className={`absolute top-3 right-3 text-[10px] font-semibold px-3 py-1 rounded-full border backdrop-blur-sm ${
-          isPublishingSoon
-            ? 'bg-secondary-container/80 text-secondary border-secondary/30'
-            : 'bg-primary-container/80 text-primary border-primary/30'
-        }`}>
-          {project.status}
-        </span>
-      </div>
-
-      {/* Content */}
-      <div className="p-5">
-        <h3 className="font-heading font-semibold text-white text-base mb-2 group-hover:text-primary transition-colors">
-          {project.title}
-        </h3>
-        <p className="text-gray-400 text-sm leading-relaxed mb-4">{project.description}</p>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className="flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-full bg-surface-container text-gray-400 border border-white/5"
-            >
-              <Tag size={9} />
-              {tag}
-            </span>
-          ))}
+      <div>
+        {/* Image */}
+        <div className="relative h-44 overflow-hidden bg-surface-container">
+          <img
+            src={project.image}
+            alt={project.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'https://images.unsplash.com/photo-1489875347897-49f64b51c1f8?crop=entropy&cs=srgb&fm=jpg&w=600&q=80';
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
+          <span
+            className={`absolute top-3 right-3 text-[10px] font-semibold px-3 py-1 rounded-full border backdrop-blur-sm ${
+              isLive
+                ? 'bg-emerald-500/80 text-white border-emerald-400/40'
+                : isPublishingSoon
+                ? 'bg-secondary-container/80 text-secondary border-secondary/30'
+                : 'bg-primary-container/80 text-primary border-primary/30'
+            }`}
+          >
+            {project.status || 'In Development'}
+          </span>
         </div>
 
-        {/* Links row */}
-        <div className="flex items-center gap-4">
-          <button
-            data-testid={`project-link-${index}`}
-            className="flex items-center gap-1.5 text-xs text-primary hover:text-secondary transition-colors font-medium group/btn"
-            disabled
-          >
-            <ExternalLink size={12} className="group-hover/btn:translate-x-0.5 transition-transform" />
-            Coming Soon
-          </button>
+        {/* Content */}
+        <div className="p-5">
+          <h3 className="font-heading font-semibold text-white text-base mb-2 group-hover:text-primary transition-colors">
+            {project.title}
+          </h3>
+          <p className="text-gray-400 text-sm leading-relaxed mb-4">{project.description}</p>
 
-          {project.privacyPolicyLink && (
-            <a
-              href={project.privacyPolicyLink}
-              data-testid={`project-privacy-link-${index}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-secondary transition-colors font-medium"
-            >
-              <Shield size={11} />
-              Privacy Policy
-            </a>
+          {/* Tags */}
+          {Array.isArray(project.tags) && project.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              {project.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-full bg-surface-container text-gray-400 border border-white/5"
+                >
+                  <Tag size={9} />
+                  {tag}
+                </span>
+              ))}
+            </div>
           )}
         </div>
+      </div>
+
+      {/* Links row */}
+      <div className="px-5 pb-5 pt-0 flex items-center gap-4">
+        {project.externalLink ? (
+          <a
+            href={project.externalLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid={`project-external-link-${index}`}
+            className="flex items-center gap-1.5 text-xs text-primary hover:text-secondary transition-colors font-medium group/btn"
+          >
+            <ExternalLink size={12} className="group-hover/btn:translate-x-0.5 transition-transform" />
+            View Project
+          </a>
+        ) : (
+          <button
+            data-testid={`project-link-${index}`}
+            className="flex items-center gap-1.5 text-xs text-primary/70 cursor-default font-medium"
+            disabled
+          >
+            <ExternalLink size={12} />
+            Coming Soon
+          </button>
+        )}
+
+        {project.privacyPolicyLink && (
+          <a
+            href={project.privacyPolicyLink}
+            data-testid={`project-privacy-link-${index}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-secondary transition-colors font-medium"
+          >
+            <Shield size={11} />
+            Privacy Policy
+          </a>
+        )}
       </div>
     </div>
   );
@@ -132,7 +104,32 @@ function ProjectCard({ project, index }) {
 
 export default function Projects() {
   const [activeTab, setActiveTab] = useState('dev');
-  const projects = activeTab === 'dev' ? devProjects : printProjects;
+  const [allProjects, setAllProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = subscribeProjects(
+      (items) => {
+        setAllProjects(items);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Error loading projects from Firestore:', err);
+        // Fallback to static lists if offline or error
+        setAllProjects([...INITIAL_DEV_PROJECTS, ...INITIAL_3D_PROJECTS]);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const projects = allProjects
+    .filter((p) => p.type === activeTab)
+    .filter((p) => isProjectVisible(p, todayStr))
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   return (
     <section
@@ -178,14 +175,29 @@ export default function Projects() {
         </div>
 
         {/* Project grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {projects.map((project, i) => (
-            <ProjectCard key={project.title} project={project} index={i} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[1, 2, 3].map((n) => (
+              <div
+                key={n}
+                className="bg-surface-container rounded-3xl h-80 animate-pulse border border-white/5"
+              />
+            ))}
+          </div>
+        ) : projects.length === 0 ? (
+          <div className="p-12 text-center text-gray-500 bg-surface-container/50 rounded-3xl border border-white/5">
+            No projects found in this category yet.
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {projects.map((project, i) => (
+              <ProjectCard key={project.id || project.title} project={project} index={i} />
+            ))}
+          </div>
+        )}
 
         <p className="text-center text-gray-600 text-sm mt-10">
-          Projects are currently in development — links will be added upon launch.
+          Projects are managed live via database — updates sync in real time.
         </p>
       </div>
     </section>

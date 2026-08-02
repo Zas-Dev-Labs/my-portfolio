@@ -149,19 +149,22 @@ export default function Admin() {
       return;
     }
 
-    // Read expected admin credentials from environment variables
-    const expectedUsername = (process.env.REACT_APP_ADMIN_USERNAME || 'skr').trim();
-    const expectedPassword = (process.env.REACT_APP_ADMIN_PASSWORD || '123456').trim();
+    // Read expected admin credentials from environment variables only (no hardcoded fallbacks)
+    const expectedUsername = (process.env.REACT_APP_ADMIN_USERNAME || '').trim();
+    const expectedPassword = (process.env.REACT_APP_ADMIN_PASSWORD || '').trim();
 
-    // Verify username and password
+    if (!expectedUsername || !expectedPassword) {
+      setAuthError("Credentials don't match.");
+      return;
+    }
+
+    // Verify username and password strictly against environment variables
     const isUserMatch =
       inputUser.toLowerCase() === expectedUsername.toLowerCase() ||
       (expectedUsername.indexOf('@') === -1 &&
-        inputUser.toLowerCase() === `${expectedUsername.toLowerCase()}@zasdevlabs.com`) ||
-      inputUser.toLowerCase() === 'skr' ||
-      inputUser.toLowerCase() === 'skr@zasdevlabs.com';
+        inputUser.toLowerCase() === `${expectedUsername.toLowerCase()}@zasdevlabs.com`);
 
-    const isPassMatch = inputPass === expectedPassword || inputPass === '123456';
+    const isPassMatch = inputPass === expectedPassword;
 
     if (!isUserMatch || !isPassMatch) {
       setAuthError("Credentials don't match.");

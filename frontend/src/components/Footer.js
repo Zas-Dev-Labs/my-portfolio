@@ -2,6 +2,7 @@ import React from 'react';
 import { Mail, Globe, ArrowUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
+import packageJson from '../../package.json';
 
 const quickLinks = [
   { label: 'About', href: '#about', external: false },
@@ -134,9 +135,16 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-white/5">
-          <p className="text-xs text-gray-600">
-            &copy; {new Date().getFullYear()} Sashi Kiran Rao &middot; ZasDevLabs. All rights reserved.
-          </p>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600">
+            <span>&copy; {new Date().getFullYear()} Sashi Kiran Rao &middot; ZasDevLabs. All rights reserved.</span>
+            <span
+              data-testid="footer-version"
+              className="inline-flex items-center px-2 py-0.5 text-[11px] font-mono rounded-full bg-white/5 border border-white/10 text-gray-400"
+              title="Application Version"
+            >
+              v{packageJson.version}
+            </span>
+          </div>
           <button
             data-testid="scroll-to-top-btn"
             onClick={scrollTop}

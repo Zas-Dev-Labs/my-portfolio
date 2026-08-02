@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Globe, ArrowUpRight, Send, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });

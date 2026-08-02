@@ -10,7 +10,7 @@ import {
   serverTimestamp,
   writeBatch
 } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 
 export const INITIAL_DEV_PROJECTS = [
   {
@@ -117,11 +117,20 @@ export function subscribeProjects(onSuccess, onError) {
   
   return onSnapshot(q, async (snapshot) => {
     if (snapshot.empty) {
-      try {
-        await seedInitialProjects();
-      } catch (e) {
-        console.error('Auto seed error:', e);
+      if (auth.currentUser) {
+        try {
+          await seedInitialProjects();
+          return;
+        } catch (e) {
+          console.warn('Auto seed skipped or failed:', e);
+        }
       }
+      // If unauthenticated or auto-seed failed, provide initial default projects as fallback
+      const fallbackItems = [...INITIAL_DEV_PROJECTS, ...INITIAL_3D_PROJECTS].map((p, idx) => ({
+        id: `default-${idx}`,
+        ...p
+      }));
+      onSuccess(fallbackItems);
     } else {
       const items = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -131,6 +140,11 @@ export function subscribeProjects(onSuccess, onError) {
     }
   }, (err) => {
     console.error('Firestore snapshot error:', err);
+    const fallbackItems = [...INITIAL_DEV_PROJECTS, ...INITIAL_3D_PROJECTS].map((p, idx) => ({
+      id: `default-${idx}`,
+      ...p
+    }));
+    onSuccess(fallbackItems);
     if (onError) onError(err);
   });
 }

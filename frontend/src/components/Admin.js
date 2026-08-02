@@ -69,6 +69,30 @@ export default function Admin() {
 
   const navigate = useNavigate();
 
+  // Ensure search engines do not index login or admin portal pages
+  useEffect(() => {
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    let created = false;
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta');
+      metaRobots.name = 'robots';
+      document.head.appendChild(metaRobots);
+      created = true;
+    }
+    const previousContent = metaRobots.getAttribute('content');
+    metaRobots.setAttribute('content', 'noindex, nofollow');
+
+    return () => {
+      if (created) {
+        metaRobots.remove();
+      } else if (previousContent) {
+        metaRobots.setAttribute('content', previousContent);
+      } else {
+        metaRobots.removeAttribute('content');
+      }
+    };
+  }, []);
+
   // Listen to auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {

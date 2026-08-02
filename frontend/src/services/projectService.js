@@ -23,7 +23,11 @@ export const INITIAL_DEV_PROJECTS = [
     image: 'https://images.unsplash.com/photo-1489875347897-49f64b51c1f8?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
     order: 1,
     externalLink: '',
-    privacyPolicyLink: ''
+    privacyPolicyLink: '',
+    isActive: true,
+    startedOn: '2026-08-01',
+    showFrom: '2026-08-01',
+    showTo: null
   },
   {
     title: 'Expense Tracker',
@@ -35,7 +39,11 @@ export const INITIAL_DEV_PROJECTS = [
     image: 'https://images.unsplash.com/photo-1782898669120-53aac9b0464e?crop=entropy&cs=srgb&fm=jpg&w=600&q=85',
     order: 2,
     externalLink: '',
-    privacyPolicyLink: '/privacy-policy'
+    privacyPolicyLink: '/privacy-policy',
+    isActive: true,
+    startedOn: '2026-08-01',
+    showFrom: '2026-08-01',
+    showTo: null
   },
   {
     title: 'Smart Dashboard Suite',
@@ -47,7 +55,11 @@ export const INITIAL_DEV_PROJECTS = [
     image: 'https://images.pexels.com/photos/6424583/pexels-photo-6424583.jpeg?auto=compress&cs=tinysrgb&w=600',
     order: 3,
     externalLink: '',
-    privacyPolicyLink: ''
+    privacyPolicyLink: '',
+    isActive: true,
+    startedOn: '2026-08-01',
+    showFrom: '2026-08-01',
+    showTo: null
   }
 ];
 
@@ -62,7 +74,11 @@ export const INITIAL_3D_PROJECTS = [
     image: 'https://images.unsplash.com/photo-1698807390276-725f3a7e41cf?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
     order: 1,
     externalLink: '',
-    privacyPolicyLink: ''
+    privacyPolicyLink: '',
+    isActive: true,
+    startedOn: '2026-08-01',
+    showFrom: '2026-08-01',
+    showTo: null
   },
   {
     title: 'Custom Enclosure Design',
@@ -74,7 +90,11 @@ export const INITIAL_3D_PROJECTS = [
     image: 'https://images.unsplash.com/photo-1566410824233-a8011929225c?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
     order: 2,
     externalLink: '',
-    privacyPolicyLink: ''
+    privacyPolicyLink: '',
+    isActive: true,
+    startedOn: '2026-08-01',
+    showFrom: '2026-08-01',
+    showTo: null
   },
   {
     title: 'Artistic Sculpture Series',
@@ -86,7 +106,11 @@ export const INITIAL_3D_PROJECTS = [
     image: 'https://images.pexels.com/photos/13156181/pexels-photo-13156181.jpeg?auto=compress&cs=tinysrgb&w=600',
     order: 3,
     externalLink: '',
-    privacyPolicyLink: ''
+    privacyPolicyLink: '',
+    isActive: true,
+    startedOn: '2026-08-01',
+    showFrom: '2026-08-01',
+    showTo: null
   }
 ];
 
@@ -149,9 +173,43 @@ export function subscribeProjects(onSuccess, onError) {
   });
 }
 
+export function isProjectVisible(project, currentDateStr) {
+  // 1. Show only if active flag is true (default is true if undefined)
+  const isActive = project.isActive !== undefined ? Boolean(project.isActive) : true;
+  if (!isActive) return false;
+
+  const today = currentDateStr || new Date().toISOString().split('T')[0];
+
+  // 2. Show only if current date is between showFrom and showTo
+  if (project.showFrom && String(project.showFrom).trim() !== '') {
+    if (today < project.showFrom) {
+      return false;
+    }
+  }
+
+  // 3. If showTo is null or empty, show forever
+  if (project.showTo && String(project.showTo).trim() !== '' && String(project.showTo) !== 'null') {
+    if (today > project.showTo) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export async function addProject(projectData) {
+  const today = new Date().toISOString().split('T')[0];
+  const startedOn = projectData.startedOn || today;
+  const showFrom = projectData.showFrom || startedOn;
+  const showTo = projectData.showTo || null;
+  const isActive = projectData.isActive !== undefined ? Boolean(projectData.isActive) : true;
+
   const docRef = await addDoc(collection(db, PROJECTS_COLLECTION), {
     ...projectData,
+    isActive,
+    startedOn,
+    showFrom,
+    showTo,
     order: Number(projectData.order) || 1,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
@@ -160,9 +218,19 @@ export async function addProject(projectData) {
 }
 
 export async function updateProject(id, projectData) {
+  const today = new Date().toISOString().split('T')[0];
+  const startedOn = projectData.startedOn || today;
+  const showFrom = projectData.showFrom || startedOn;
+  const showTo = projectData.showTo !== undefined ? (projectData.showTo || null) : null;
+  const isActive = projectData.isActive !== undefined ? Boolean(projectData.isActive) : true;
+
   const docRef = doc(db, PROJECTS_COLLECTION, id);
   await updateDoc(docRef, {
     ...projectData,
+    isActive,
+    startedOn,
+    showFrom,
+    showTo,
     order: Number(projectData.order) || 1,
     updatedAt: serverTimestamp()
   });

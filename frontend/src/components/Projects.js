@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ExternalLink, Code2, Printer, Tag, Shield } from 'lucide-react';
-import { subscribeProjects, INITIAL_DEV_PROJECTS, INITIAL_3D_PROJECTS } from '../services/projectService';
+import { subscribeProjects, INITIAL_DEV_PROJECTS, INITIAL_3D_PROJECTS, isProjectVisible } from '../services/projectService';
 
 function ProjectCard({ project, index }) {
   const isPublishingSoon = project.status === 'Publishing Soon';
@@ -124,8 +124,11 @@ export default function Projects() {
     return () => unsubscribe();
   }, []);
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const projects = allProjects
     .filter((p) => p.type === activeTab)
+    .filter((p) => isProjectVisible(p, todayStr))
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   return (

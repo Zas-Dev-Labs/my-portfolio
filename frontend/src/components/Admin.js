@@ -24,7 +24,10 @@ import {
   Lock,
   UserPlus,
   LogIn,
-  Check
+  Check,
+  Calendar,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { auth } from '../firebase';
 import {
@@ -50,6 +53,8 @@ export default function Admin() {
   const [loadingData, setLoadingData] = useState(true);
   const [actionSuccess, setActionSuccess] = useState('');
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   // Modal / Editing states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -62,7 +67,11 @@ export default function Admin() {
     image: '',
     order: 1,
     externalLink: '',
-    privacyPolicyLink: ''
+    privacyPolicyLink: '',
+    isActive: true,
+    startedOn: todayStr,
+    showFrom: todayStr,
+    showTo: ''
   });
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
@@ -152,6 +161,7 @@ export default function Admin() {
 
   // Open Add Modal
   const handleOpenAdd = () => {
+    const today = new Date().toISOString().split('T')[0];
     setEditingId(null);
     setFormData({
       title: '',
@@ -162,7 +172,11 @@ export default function Admin() {
       image: 'https://images.unsplash.com/photo-1489875347897-49f64b51c1f8?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
       order: projects.filter(p => p.type === activeTab).length + 1,
       externalLink: '',
-      privacyPolicyLink: ''
+      privacyPolicyLink: '',
+      isActive: true,
+      startedOn: today,
+      showFrom: today,
+      showTo: ''
     });
     setFormError('');
     setIsModalOpen(true);
@@ -170,6 +184,7 @@ export default function Admin() {
 
   // Open Edit Modal
   const handleOpenEdit = (project) => {
+    const today = new Date().toISOString().split('T')[0];
     setEditingId(project.id);
     setFormData({
       title: project.title || '',
@@ -180,7 +195,11 @@ export default function Admin() {
       image: project.image || '',
       order: project.order || 1,
       externalLink: project.externalLink || '',
-      privacyPolicyLink: project.privacyPolicyLink || ''
+      privacyPolicyLink: project.privacyPolicyLink || '',
+      isActive: project.isActive !== undefined ? Boolean(project.isActive) : true,
+      startedOn: project.startedOn || today,
+      showFrom: project.showFrom || project.startedOn || today,
+      showTo: project.showTo || ''
     });
     setFormError('');
     setIsModalOpen(true);
@@ -213,7 +232,11 @@ export default function Admin() {
       image: formData.image.trim() || 'https://images.unsplash.com/photo-1489875347897-49f64b51c1f8?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
       order: Number(formData.order) || 1,
       externalLink: formData.externalLink.trim(),
-      privacyPolicyLink: formData.privacyPolicyLink.trim()
+      privacyPolicyLink: formData.privacyPolicyLink.trim(),
+      isActive: Boolean(formData.isActive),
+      startedOn: formData.startedOn || todayStr,
+      showFrom: formData.showFrom || formData.startedOn || todayStr,
+      showTo: formData.showTo.trim() ? formData.showTo.trim() : null
     };
 
     try {
@@ -230,6 +253,21 @@ export default function Admin() {
       setFormError('Failed to save project to Firestore: ' + err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // Toggle Active State directly from card
+  const handleToggleActive = async (project) => {
+    const currentActive = project.isActive !== undefined ? Boolean(project.isActive) : true;
+    const nextActive = !currentActive;
+    try {
+      await updateProject(project.id, {
+        ...project,
+        isActive: nextActive
+      });
+      showSuccessMessage(`Project "${project.title}" set to ${nextActive ? 'Active' : 'Inactive'}`);
+    } catch (err) {
+      alert('Failed to update project active status: ' + err.message);
     }
   };
 
@@ -494,87 +532,131 @@ export default function Admin() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {activeProjects.map((project) => (
-              <div
-                key={project.id}
-                className="bg-surface border border-white/10 rounded-2xl overflow-hidden flex flex-col justify-between group hover:border-white/20 transition-all"
-              >
-                <div>
-                  {/* Thumbnail */}
-                  <div className="relative h-40 overflow-hidden bg-surface-container">
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-mono text-gray-300">
-                      Order: {project.order || 1}
-                    </div>
-                    <div className="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-primary/80 backdrop-blur-md border border-primary/30 text-[10px] font-semibold text-white">
-                      {project.status || 'In Development'}
-                    </div>
-                  </div>
-
-                  {/* Body Details */}
-                  <div className="p-5">
-                    <h3 className="font-heading font-semibold text-white text-base mb-2">
-                      {project.title}
-                    </h3>
-                    <p className="text-gray-400 text-xs leading-relaxed line-clamp-3 mb-4">
-                      {project.description}
-                    </p>
-
-                    {/* Tags */}
-                    {Array.isArray(project.tags) && project.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-4">
-                        {project.tags.map((tag, idx) => (
-                          <span
-                            key={idx}
-                            className="text-[10px] px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-gray-400 flex items-center gap-1"
-                          >
-                            <Tag size={9} /> {tag}
-                          </span>
-                        ))}
+            {activeProjects.map((project) => {
+              const isActive = project.isActive !== undefined ? Boolean(project.isActive) : true;
+              return (
+                <div
+                  key={project.id}
+                  className="bg-surface border border-white/10 rounded-2xl overflow-hidden flex flex-col justify-between group hover:border-white/20 transition-all"
+                >
+                  <div>
+                    {/* Thumbnail */}
+                    <div className="relative h-40 overflow-hidden bg-surface-container">
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-mono text-gray-300">
+                        Order: {project.order || 1}
                       </div>
-                    )}
+                      <div className="absolute top-2 right-2 flex items-center gap-1">
+                        <span
+                          className={`px-2.5 py-1 rounded-full backdrop-blur-md border text-[10px] font-semibold ${
+                            isActive
+                              ? 'bg-emerald-500/80 text-white border-emerald-400/40'
+                              : 'bg-gray-800/80 text-gray-400 border-gray-600/40'
+                          }`}
+                        >
+                          {isActive ? 'Active' : 'Inactive'}
+                        </span>
+                        <span className="px-2.5 py-1 rounded-full bg-primary/80 backdrop-blur-md border border-primary/30 text-[10px] font-semibold text-white">
+                          {project.status || 'In Development'}
+                        </span>
+                      </div>
+                    </div>
 
-                    {/* Links if available */}
-                    <div className="flex items-center gap-3 text-[11px] text-gray-500">
-                      {project.externalLink && (
-                        <span className="flex items-center gap-1 text-primary">
-                          <ExternalLink size={10} /> Link attached
-                        </span>
+                    {/* Body Details */}
+                    <div className="p-5">
+                      <h3 className="font-heading font-semibold text-white text-base mb-2">
+                        {project.title}
+                      </h3>
+                      <p className="text-gray-400 text-xs leading-relaxed line-clamp-3 mb-4">
+                        {project.description}
+                      </p>
+
+                      {/* Display window / Schedule Info */}
+                      <div className="mb-4 p-2.5 rounded-xl bg-surface-container border border-white/5 space-y-1 text-[11px] text-gray-400">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar size={12} className="text-primary" />
+                          <span>Started: <strong className="text-gray-200">{project.startedOn || 'N/A'}</strong></span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Calendar size={12} className="text-secondary" />
+                          <span>
+                            Visible From: <strong className="text-gray-200">{project.showFrom || project.startedOn || 'N/A'}</strong> to{' '}
+                            <strong className="text-gray-200">{project.showTo ? project.showTo : 'Forever'}</strong>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Tags */}
+                      {Array.isArray(project.tags) && project.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                          {project.tags.map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className="text-[10px] px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-gray-400 flex items-center gap-1"
+                            >
+                              <Tag size={9} /> {tag}
+                            </span>
+                          ))}
+                        </div>
                       )}
-                      {project.privacyPolicyLink && (
-                        <span className="flex items-center gap-1 text-gray-400">
-                          <Shield size={10} /> Privacy policy
-                        </span>
-                      )}
+
+                      {/* Links if available */}
+                      <div className="flex items-center gap-3 text-[11px] text-gray-500">
+                        {project.externalLink && (
+                          <span className="flex items-center gap-1 text-primary">
+                            <ExternalLink size={10} /> Link attached
+                          </span>
+                        )}
+                        {project.privacyPolicyLink && (
+                          <span className="flex items-center gap-1 text-gray-400">
+                            <Shield size={10} /> Privacy policy
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer Action buttons */}
+                  <div className="px-5 py-3 bg-surface-container border-t border-white/5 flex items-center justify-between">
+                    <button
+                      onClick={() => handleToggleActive(project)}
+                      className={`p-2 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${
+                        isActive
+                          ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'
+                          : 'bg-gray-800 hover:bg-gray-700 text-gray-400'
+                      }`}
+                      title={isActive ? 'Deactivate project' : 'Activate project'}
+                    >
+                      {isActive ? <Eye size={14} /> : <EyeOff size={14} />}
+                      <span className="text-[11px]">{isActive ? 'Active' : 'Hidden'}</span>
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleOpenEdit(project)}
+                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-medium flex items-center gap-1 transition-colors"
+                        title="Edit project details"
+                      >
+                        <Edit2 size={14} />
+                        <span className="sr-only sm:not-sr-only">Edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(project.id, project.title)}
+                        className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 text-xs font-medium flex items-center gap-1 transition-colors"
+                        title="Delete project"
+                      >
+                        <Trash2 size={14} />
+                        <span className="sr-only sm:not-sr-only">Delete</span>
+                      </button>
                     </div>
                   </div>
                 </div>
-
-                {/* Footer Action buttons */}
-                <div className="px-5 py-3 bg-surface-container border-t border-white/5 flex items-center justify-end gap-2">
-                  <button
-                    onClick={() => handleOpenEdit(project)}
-                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-medium flex items-center gap-1 transition-colors"
-                    title="Edit project details"
-                  >
-                    <Edit2 size={14} />
-                    <span className="sr-only sm:not-sr-only">Edit</span>
-                  </button>
-                  <button
-                    onClick={() => handleDelete(project.id, project.title)}
-                    className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 text-xs font-medium flex items-center gap-1 transition-colors"
-                    title="Delete project"
-                  >
-                    <Trash2 size={14} />
-                    <span className="sr-only sm:not-sr-only">Delete</span>
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
@@ -603,6 +685,26 @@ export default function Admin() {
             )}
 
             <form onSubmit={handleSave} className="space-y-4">
+              <div className="p-3 bg-surface-container/80 rounded-2xl border border-white/10 flex items-center justify-between">
+                <div>
+                  <label className="text-xs font-semibold text-white block">
+                    Active Status
+                  </label>
+                  <p className="text-[11px] text-gray-400">
+                    If inactive, project will not be shown on the public portfolio.
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-300 mb-1">
@@ -632,6 +734,65 @@ export default function Admin() {
                     <option value="Live">Live</option>
                     <option value="Completed">Completed</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Schedule and Visibility Dates */}
+              <div className="p-4 bg-surface-container rounded-2xl border border-white/10 space-y-3">
+                <h4 className="text-xs font-semibold text-gray-200 flex items-center gap-1.5">
+                  <Calendar size={14} className="text-primary" />
+                  Schedule & Display Dates
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-medium text-gray-300 mb-1">
+                      Started On
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={formData.startedOn}
+                      onChange={(e) => {
+                        const newDate = e.target.value;
+                        setFormData((prev) => ({
+                          ...prev,
+                          startedOn: newDate,
+                          showFrom: prev.showFrom === prev.startedOn ? newDate : prev.showFrom
+                        }));
+                      }}
+                      className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-white text-xs focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-medium text-gray-300 mb-1">
+                      Show From Date
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={formData.showFrom}
+                      onChange={(e) => setFormData({ ...formData, showFrom: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-white text-xs focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-medium text-gray-300 mb-1">
+                      Show To Date (Optional)
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.showTo}
+                      onChange={(e) => setFormData({ ...formData, showTo: e.target.value })}
+                      placeholder="Forever if blank"
+                      className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-white text-xs focus:outline-none focus:border-primary"
+                    />
+                    <span className="text-[10px] text-gray-500 block mt-0.5">
+                      Leave blank to show forever
+                    </span>
+                  </div>
                 </div>
               </div>
 

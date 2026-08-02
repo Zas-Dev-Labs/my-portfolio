@@ -42,9 +42,8 @@ import Logo from './Logo';
 export default function Admin() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false);
   const [authError, setAuthError] = useState('');
 
   // Data states
@@ -131,26 +130,60 @@ export default function Admin() {
   const handleAuth = async (e) => {
     e.preventDefault();
     setAuthError('');
-    if (!email || !password) {
-      setAuthError('Please enter both email and password.');
+
+    const inputUser = username.trim();
+    const inputPass = password.trim();
+
+    if (!inputUser || !inputPass) {
+      setAuthError("Credentials don't match.");
       return;
     }
+
+    // Read expected admin credentials from environment variables
+    const expectedUsername = (process.env.REACT_APP_ADMIN_USERNAME || 'skr').trim();
+    const expectedPassword = (process.env.REACT_APP_ADMIN_PASSWORD || '123456').trim();
+
+    // If env credentials are empty or missing
+    if (!expectedUsername || !expectedPassword) {
+      setAuthError("Credentials don't match.");
+      return;
+    }
+
+    // Verify username and password
+    const isUserMatch =
+      inputUser.toLowerCase() === expectedUsername.toLowerCase() ||
+      (expectedUsername.indexOf('@') === -1 &&
+        inputUser.toLowerCase() === `${expectedUsername.toLowerCase()}@zasdevlabs.com`);
+
+    const isPassMatch = inputPass === expectedPassword;
+
+    if (!isUserMatch || !isPassMatch) {
+      setAuthError("Credentials don't match.");
+      return;
+    }
+
+    // Credentials match! Sign in to Firebase Auth for Firestore rules access
+    const adminEmail = expectedUsername.includes('@')
+      ? expectedUsername.toLowerCase()
+      : `${expectedUsername.toLowerCase()}@zasdevlabs.com`;
+
     try {
-      if (isRegistering) {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
+      await signInWithEmailAndPassword(auth, adminEmail, expectedPassword);
     } catch (err) {
-      console.error('Auth Error:', err);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        setAuthError('Invalid credentials. If this is your first time, switch to "Create Admin Account".');
-      } else if (err.code === 'auth/email-already-in-use') {
-        setAuthError('This email is already registered. Please sign in instead.');
-      } else if (err.code === 'auth/weak-password') {
-        setAuthError('Password should be at least 6 characters.');
+      // If user account doesn't exist in Firebase Auth yet, auto-provision single admin user
+      if (
+        err.code === 'auth/user-not-found' ||
+        err.code === 'auth/invalid-credential'
+      ) {
+        try {
+          await createUserWithEmailAndPassword(auth, adminEmail, expectedPassword);
+        } catch (createErr) {
+          console.error('Firebase Admin Auto-provision error:', createErr);
+          setAuthError("Credentials don't match.");
+        }
       } else {
-        setAuthError(err.message || 'Authentication failed');
+        console.error('Firebase Auth Signin error:', err);
+        setAuthError("Credentials don't match.");
       }
     }
   };
@@ -337,7 +370,7 @@ export default function Admin() {
               <Logo />
             </div>
             <h1 className="font-heading text-2xl font-semibold text-white">
-              {isRegistering ? 'Create Admin Account' : 'Admin Login'}
+              Admin Login
             </h1>
             <p className="text-xs text-gray-400 mt-1">
               Manage live portfolio projects & 3D models stored in Firestore
@@ -353,13 +386,13 @@ export default function Admin() {
 
           <form onSubmit={handleAuth} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-gray-300 mb-1.5">Email Address</label>
+              <label className="block text-xs font-medium text-gray-300 mb-1.5">Username</label>
               <input
-                type="email"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@zasdevlabs.com"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="skr"
                 className="w-full px-4 py-3 rounded-xl bg-surface-container border border-white/10 text-white text-sm focus:outline-none focus:border-primary transition-colors"
               />
             </div>
@@ -381,31 +414,9 @@ export default function Admin() {
               data-testid="admin-login-submit-btn"
               className="w-full py-3.5 px-4 rounded-xl bg-primary text-primary-fg font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
             >
-              {isRegistering ? (
-                <>
-                  <UserPlus size={16} /> Create Account
-                </>
-              ) : (
-                <>
-                  <LogIn size={16} /> Sign In
-                </>
-              )}
+              <LogIn size={16} /> Sign In
             </button>
           </form>
-
-          <div className="mt-6 pt-6 border-t border-white/5 text-center">
-            <button
-              onClick={() => {
-                setIsRegistering(!isRegistering);
-                setAuthError('');
-              }}
-              className="text-xs text-gray-400 hover:text-secondary transition-colors font-medium"
-            >
-              {isRegistering
-                ? 'Already have an admin account? Sign in'
-                : "First time setting up? Create Admin Account"}
-            </button>
-          </div>
         </div>
       </div>
     );

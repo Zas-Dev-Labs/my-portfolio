@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Globe, ArrowUp } from 'lucide-react';
+import { Mail, Globe, ArrowUp, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
 import packageJson from '../../package.json';
@@ -144,6 +144,15 @@ export default function Footer() {
             >
               v{packageJson.version}
             </span>
+            <Link
+              to="/admin"
+              data-testid="footer-admin-link"
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-mono rounded-full bg-white/5 border border-white/10 text-gray-500 hover:text-primary hover:border-primary/30 transition-all opacity-40 hover:opacity-100"
+              title="Admin Control Portal"
+            >
+              <Lock size={10} />
+              <span>Admin</span>
+            </Link>
           </div>
           <button
             data-testid="scroll-to-top-btn"

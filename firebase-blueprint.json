@@ -1,0 +1,23 @@
+{
+  "entities": {
+    "projects": {
+      "title": "Projects",
+      "description": "Development and 3D printing projects displayed on the portfolio",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string", "enum": ["dev", "3d"] },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string" },
+        "image": { "type": "string" },
+        "privacyPolicyLink": { "type": "string" },
+        "externalLink": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "description", "type", "tags", "status", "image"]
+    }
+  }
+}

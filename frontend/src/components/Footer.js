@@ -11,7 +11,6 @@ const quickLinks = [
   { label: 'Experience', href: '#experience', external: false },
   { label: 'Contact', href: '#contact', external: false },
   { label: 'Privacy Policy', href: '/privacy-policy', external: true },
-  { label: 'Kanthastha Privacy & Terms', href: '/sloka-app/privacy-policy', external: true },
 ];
 
 // TODO: Replace # with actual social profile URLs when ready

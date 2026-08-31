@@ -50,12 +50,12 @@ export const INITIAL_DEV_PROJECTS = [
     description:
       'An Android app for learning, reciting, and memorizing sacred Slokas. Features a pre-defined base library, custom sloka creator, phonetic stanza chunking, Text-to-Speech pronunciation playback, and audio recording for voice practice.',
     tags: ['Android', 'Kotlin', 'Text-to-Speech', 'Audio Recording', 'Sanskrit'],
-    status: 'In Development',
+    status: 'Publishing Soon',
     type: 'dev',
-    image: 'https://images.unsplash.com/photo-1609743522653-52354461eb27?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
+    image: '/kanthastha_banner.jpg',
     order: 3,
     externalLink: '',
-    privacyPolicyLink: '/sloka-app/privacy-policy',
+    privacyPolicyLink: '/kanthastha/privacy-policy',
     isActive: true,
     startedOn: '2026-08-01',
     showFrom: '2026-08-01',
@@ -158,7 +158,7 @@ export function subscribeProjects(onSuccess, onError) {
     } else {
       const items = snapshot.docs.map(docSnap => {
         const data = docSnap.data();
-        if (data.title === 'Smart Dashboard Suite') {
+        if (data.title === 'Smart Dashboard Suite' || data.title?.includes('Kantastha') || data.title?.includes('Kanthastha')) {
           return {
             id: docSnap.id,
             ...INITIAL_DEV_PROJECTS[2],
@@ -166,8 +166,9 @@ export function subscribeProjects(onSuccess, onError) {
             title: 'Kantastha: Recite & Memorize',
             description: INITIAL_DEV_PROJECTS[2].description,
             tags: INITIAL_DEV_PROJECTS[2].tags,
-            privacyPolicyLink: '/sloka-app/privacy-policy',
-            image: INITIAL_DEV_PROJECTS[2].image
+            status: 'Publishing Soon',
+            privacyPolicyLink: '/kanthastha/privacy-policy',
+            image: '/kanthastha_banner.jpg'
           };
         }
         return {

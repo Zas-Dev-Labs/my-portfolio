@@ -24,7 +24,7 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import Logo from './Logo';
 
-export default function SlokaLegal({ initialTab = 'privacy' }) {
+export default function KanthasthaLegal({ initialTab = 'privacy' }) {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(
     location.pathname.includes('terms') || initialTab === 'terms' ? 'terms' : 'privacy'
@@ -273,26 +273,57 @@ ZasDevLabs does not guarantee that the App will be uninterrupted, error-free, co
         <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-6xl mx-auto px-6 md:px-12 py-12 md:py-16 relative z-10">
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
-              <Sparkles size={12} />
-              Android Application Legal Documentation
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-gray-400 border border-white/10">
-              Google Play Policy Compliant
-            </span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-8">
+            <div className="lg:col-span-8">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-secondary-container/80 text-secondary border border-secondary/30">
+                  <Sparkles size={12} />
+                  Publishing Soon on Google Play
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-gray-400 border border-white/10">
+                  Android Application Legal Documentation
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4 mb-4">
+                <img
+                  src="/kanthastha_icon.jpg"
+                  alt="Kanthastha App Icon"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border border-white/10 shadow-xl object-cover shrink-0"
+                />
+                <div>
+                  <h1
+                    data-testid="kanthastha-legal-title"
+                    className="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight"
+                  >
+                    Kantastha: Recite &amp; Memorize
+                  </h1>
+                  <p className="text-secondary text-xs sm:text-sm font-medium tracking-wide">
+                    Android Sloka Learning &amp; Pronunciation Companion by ZasDevLabs
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-gray-400 text-base sm:text-lg max-w-3xl leading-relaxed mb-6">
+                Official Privacy Policy and Terms of Use for <strong className="text-white font-medium">Kanthastha</strong> ("Kantastha: Recite &amp; Memorize") — featuring pre-defined &amp; custom Sloka libraries, phonetic stanza chunking, Text-to-Speech playback, and microphone-based pronunciation practice.
+              </p>
+            </div>
+
+            <div className="lg:col-span-4">
+              <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-surface-container group">
+                <img
+                  src="/kanthastha_banner.jpg"
+                  alt="Kanthastha Feature Graphic"
+                  className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-[11px] text-white/90 font-medium">
+                  <span>Kanthastha Feature Graphic</span>
+                  <span className="text-secondary">v1.0 Preview</span>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <h1
-            data-testid="sloka-legal-title"
-            className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-4"
-          >
-            Kantastha: Recite &amp; Memorize
-          </h1>
-
-          <p className="text-gray-400 text-base sm:text-lg max-w-3xl leading-relaxed mb-6">
-            Official Privacy Policy and Terms of Use for <strong className="text-white font-medium">Kanthastha</strong> ("Kantastha: Recite &amp; Memorize") — our Android app featuring pre-defined and custom Sloka libraries, phonetic stanza chunking, Text-to-Speech playback, and microphone-based pronunciation practice.
-          </p>
 
           {/* App Core Architectural Highlights */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 pb-6 border-t border-white/5">
@@ -344,7 +375,7 @@ ZasDevLabs does not guarantee that the App will be uninterrupted, error-free, co
                 data-testid="tab-privacy-policy"
                 onClick={() => {
                   setActiveTab('privacy');
-                  window.history.replaceState(null, '', '/sloka-app/privacy-policy');
+                  window.history.replaceState(null, '', '/kanthastha/privacy-policy');
                 }}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
                   activeTab === 'privacy'
@@ -360,7 +391,7 @@ ZasDevLabs does not guarantee that the App will be uninterrupted, error-free, co
                 data-testid="tab-terms-of-use"
                 onClick={() => {
                   setActiveTab('terms');
-                  window.history.replaceState(null, '', '/sloka-app/terms-of-use');
+                  window.history.replaceState(null, '', '/kanthastha/terms-of-use');
                 }}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
                   activeTab === 'terms'
@@ -453,21 +484,21 @@ ZasDevLabs does not guarantee that the App will be uninterrupted, error-free, co
               </p>
               <div className="space-y-1.5 font-mono text-[11px]">
                 <a
-                  href="/sloka-app-privacy.html"
+                  href="/kanthastha-privacy.html"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-between p-2 rounded-lg bg-black/30 hover:bg-black/50 text-primary border border-primary/20 transition-colors"
                 >
-                  <span className="truncate">/sloka-app-privacy.html</span>
+                  <span className="truncate">/kanthastha-privacy.html</span>
                   <ExternalLink size={12} className="shrink-0 ml-1" />
                 </a>
                 <a
-                  href="/sloka-app-terms.html"
+                  href="/kanthastha-terms.html"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-between p-2 rounded-lg bg-black/30 hover:bg-black/50 text-primary border border-primary/20 transition-colors"
                 >
-                  <span className="truncate">/sloka-app-terms.html</span>
+                  <span className="truncate">/kanthastha-terms.html</span>
                   <ExternalLink size={12} className="shrink-0 ml-1" />
                 </a>
               </div>
@@ -542,12 +573,12 @@ ZasDevLabs does not guarantee that the App will be uninterrupted, error-free, co
               Website Privacy
             </Link>
             <span>&middot;</span>
-            <Link to="/sloka-app/privacy-policy" className="hover:text-primary transition-colors">
-              Sloka App Privacy
+            <Link to="/kanthastha/privacy-policy" className="hover:text-primary transition-colors">
+              Kanthastha Privacy
             </Link>
             <span>&middot;</span>
-            <Link to="/sloka-app/terms-of-use" className="hover:text-primary transition-colors">
-              Sloka App Terms
+            <Link to="/kanthastha/terms-of-use" className="hover:text-primary transition-colors">
+              Kanthastha Terms
             </Link>
           </div>
         </div>

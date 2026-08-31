@@ -22,7 +22,6 @@ import {
   ExternalLink,
   Shield,
   Lock,
-  UserPlus,
   LogIn,
   Check,
   Calendar,

@@ -36,10 +36,19 @@ export default function SlokaLegal({ initialTab = 'privacy' }) {
     window.scrollTo(0, 0);
     if (location.pathname.includes('terms')) {
       setActiveTab('terms');
+      document.title = 'Terms of Use — Kantastha: Recite & Memorize | ZasDevLabs';
     } else if (location.pathname.includes('privacy')) {
       setActiveTab('privacy');
+      document.title = 'Privacy Policy — Kantastha: Recite & Memorize | ZasDevLabs';
+    } else {
+      document.title = activeTab === 'terms'
+        ? 'Terms of Use — Kantastha: Recite & Memorize | ZasDevLabs'
+        : 'Privacy Policy — Kantastha: Recite & Memorize | ZasDevLabs';
     }
-  }, [location.pathname]);
+    return () => {
+      document.title = 'Sashi Kiran Rao | ZasDevLabs';
+    };
+  }, [location.pathname, activeTab]);
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -58,9 +67,9 @@ export default function SlokaLegal({ initialTab = 'privacy' }) {
       id: 'overview',
       title: '1. Overview & Scope',
       icon: <Shield size={18} className="text-primary" />,
-      content: `This Privacy Policy governs the Sloka Learning & Pronunciation Companion Android application ("the App", "our App"), created and maintained by ZasDevLabs (developed by Sashi Kiran Rao). 
+      content: `This Privacy Policy governs the Kanthastha ("Kantastha: Recite & Memorize") Android application ("the App", "our App"), created and maintained by ZasDevLabs (developed by Sashi Kiran Rao). 
 
-Our App is designed to help users, students, and spiritual practitioners learn, recite, and master sacred Slokas, Stotras, and Vedic chants. It features a curated Base Library of standard Slokas, an interface to build a personalized Custom Sloka Library, intelligent stanza chunking for pronunciation, Text-to-Speech (TTS) playback, and microphone-based voice recording for pronunciation self-verification and practice.
+Kanthastha is designed to help users, students, and spiritual practitioners learn, recite, and memorize sacred Slokas, Stotras, and Vedic chants. It features a curated Base Library of standard Slokas, an interface to build a personalized Custom Sloka Library, intelligent stanza chunking for pronunciation, Text-to-Speech (TTS) playback, and microphone-based voice recording for pronunciation self-verification and practice.
 
 We prioritize your privacy above all else. Our App follows a strict local-first, privacy-by-design architecture: your custom slokas, audio recordings, and learning progress remain securely on your device.`
     },
@@ -158,7 +167,7 @@ Location: Bengaluru / Karnataka, India`
       id: 'acceptance',
       title: '1. Acceptance of Terms',
       icon: <FileText size={18} className="text-primary" />,
-      content: `By downloading, installing, accessing, or using the Sloka Learning & Pronunciation Companion Android application ("the App"), you agree to be bound by these Terms of Use ("Terms"). These Terms constitute a binding legal agreement between you ("User" or "you") and ZasDevLabs (operated by Sashi Kiran Rao).
+      content: `By downloading, installing, accessing, or using the Kanthastha ("Kantastha: Recite & Memorize") Android application ("the App"), you agree to be bound by these Terms of Use ("Terms"). These Terms constitute a binding legal agreement between you ("User" or "you") and ZasDevLabs (operated by Sashi Kiran Rao).
 
 If you do not agree with any part of these Terms, please do not download, install, or use the App.`
     },
@@ -278,11 +287,11 @@ ZasDevLabs does not guarantee that the App will be uninterrupted, error-free, co
             data-testid="sloka-legal-title"
             className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-4"
           >
-            Sloka Learning &amp; Pronunciation Companion
+            Kantastha: Recite &amp; Memorize
           </h1>
 
           <p className="text-gray-400 text-base sm:text-lg max-w-3xl leading-relaxed mb-6">
-            Official Privacy Policy and Terms of Use for our Android app — featuring pre-defined and custom Sloka libraries, stanza chunking, Text-to-Speech playback, and microphone-based pronunciation practice.
+            Official Privacy Policy and Terms of Use for <strong className="text-white font-medium">Kanthastha</strong> ("Kantastha: Recite &amp; Memorize") — our Android app featuring pre-defined and custom Sloka libraries, phonetic stanza chunking, Text-to-Speech playback, and microphone-based pronunciation practice.
           </p>
 
           {/* App Core Architectural Highlights */}

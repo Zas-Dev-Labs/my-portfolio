@@ -46,16 +46,16 @@ export const INITIAL_DEV_PROJECTS = [
     showTo: null
   },
   {
-    title: 'Smart Dashboard Suite',
+    title: 'Kantastha: Recite & Memorize',
     description:
-      'Enterprise-grade analytics dashboard with real-time data visualization and AI-powered business intelligence insights.',
-    tags: ['Angular', 'Data Viz', 'Enterprise', 'AI'],
+      'An Android app for learning, reciting, and memorizing sacred Slokas. Features a pre-defined base library, custom sloka creator, phonetic stanza chunking, Text-to-Speech pronunciation playback, and audio recording for voice practice.',
+    tags: ['Android', 'Kotlin', 'Text-to-Speech', 'Audio Recording', 'Sanskrit'],
     status: 'In Development',
     type: 'dev',
-    image: 'https://images.pexels.com/photos/6424583/pexels-photo-6424583.jpeg?auto=compress&cs=tinysrgb&w=600',
+    image: 'https://images.unsplash.com/photo-1609743522653-52354461eb27?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
     order: 3,
     externalLink: '',
-    privacyPolicyLink: '',
+    privacyPolicyLink: '/sloka-app/privacy-policy',
     isActive: true,
     startedOn: '2026-08-01',
     showFrom: '2026-08-01',
@@ -156,10 +156,25 @@ export function subscribeProjects(onSuccess, onError) {
       }));
       onSuccess(fallbackItems);
     } else {
-      const items = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const items = snapshot.docs.map(docSnap => {
+        const data = docSnap.data();
+        if (data.title === 'Smart Dashboard Suite') {
+          return {
+            id: docSnap.id,
+            ...INITIAL_DEV_PROJECTS[2],
+            ...data,
+            title: 'Kantastha: Recite & Memorize',
+            description: INITIAL_DEV_PROJECTS[2].description,
+            tags: INITIAL_DEV_PROJECTS[2].tags,
+            privacyPolicyLink: '/sloka-app/privacy-policy',
+            image: INITIAL_DEV_PROJECTS[2].image
+          };
+        }
+        return {
+          id: docSnap.id,
+          ...data
+        };
+      });
       onSuccess(items);
     }
   }, (err) => {

@@ -39,6 +39,12 @@ function App() {
         <Route path="/sloka-app" element={<SlokaLegal initialTab="privacy" />} />
         <Route path="/sloka-privacy-policy" element={<SlokaLegal initialTab="privacy" />} />
         <Route path="/sloka-terms-of-use" element={<SlokaLegal initialTab="terms" />} />
+        <Route path="/kanthastha/privacy-policy" element={<SlokaLegal initialTab="privacy" />} />
+        <Route path="/kanthastha/terms-of-use" element={<SlokaLegal initialTab="terms" />} />
+        <Route path="/kanthastha" element={<SlokaLegal initialTab="privacy" />} />
+        <Route path="/kantastha/privacy-policy" element={<SlokaLegal initialTab="privacy" />} />
+        <Route path="/kantastha/terms-of-use" element={<SlokaLegal initialTab="terms" />} />
+        <Route path="/kantastha" element={<SlokaLegal initialTab="privacy" />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/login" element={<Admin />} />
       </Routes>

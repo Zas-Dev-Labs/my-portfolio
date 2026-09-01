@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Use — Kantastha: Recite &amp; Memorize | ZasDevLabs</title>
+  <meta name="description" content="Official Terms of Use for Kanthastha (Kantastha: Recite &amp; Memorize) Android application by ZasDevLabs." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #121212;
+      color: #e5e7eb;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    a { color: #00BFFF; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Header */
+    .header {
+      background: #1E1E1E;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .header-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .header-name {
+      font-weight: 700;
+      color: #00BFFF;
+      font-size: 16px;
+      letter-spacing: -0.2px;
+    }
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+    }
+    .header-links a { color: #9ca3af; }
+    .header-links a:hover { color: #00BFFF; text-decoration: none; }
+
+    /* Hero */
+    .hero {
+      background: #1E1E1E;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 48px 24px 40px;
+    }
+    .hero-inner {
+      max-width: 840px;
+      margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,191,255,0.10);
+      border: 1px solid rgba(0,191,255,0.25);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 11px;
+      color: #00BFFF;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 18px;
+      font-weight: 600;
+    }
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+      line-height: 1.25;
+      letter-spacing: -0.5px;
+    }
+    .hero p {
+      color: #9ca3af;
+      max-width: 700px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .meta-bar {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      font-size: 12px;
+      color: #6b7280;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding-top: 18px;
+    }
+    .meta-bar span { display: flex; align-items: center; gap: 6px; }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #00BFFF;
+      display: inline-block;
+    }
+
+    /* Content Layout */
+    .content {
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .doc-nav {
+      background: #1E1E1E;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 18px 22px;
+      margin-bottom: 28px;
+    }
+    .doc-nav-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #6b7280;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .doc-nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      font-size: 13px;
+    }
+
+    .section {
+      background: #1E1E1E;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 20px;
+      padding: 28px 32px;
+      margin-bottom: 20px;
+      scroll-margin-top: 80px;
+    }
+    .section h2 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-badge {
+      background: rgba(0,191,255,0.12);
+      color: #00BFFF;
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .section p, .section li {
+      color: #9ca3af;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .section ul {
+      padding-left: 22px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .section ul li { margin-bottom: 6px; }
+    .section p + p { margin-top: 12px; }
+
+    /* Footer */
+    .footer {
+      background: #282828;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 30px 24px;
+      text-align: center;
+    }
+    .footer-inner {
+      max-width: 840px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .footer p {
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .footer-links {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 24px; }
+      .section { padding: 22px 20px; }
+    }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      .header, .footer, .doc-nav, .meta-bar { display: none; }
+      .section { border: 1px solid #ccc; background: #fff; page-break-inside: avoid; }
+      .section h2, .hero h1 { color: #000; }
+      .section p, .section li, .hero p { color: #333; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="header">
+    <a href="/" class="header-brand">
+      <img src="/logo.jpg" alt="ZasDevLabs" class="header-logo" onerror="this.style.display='none'" />
+      <span class="header-name">ZasDevLabs</span>
+    </a>
+    <div class="header-links">
+      <a href="/kanthastha-privacy.html">&larr; Privacy Policy</a>
+      <a href="/">Portfolio</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+        <div class="hero-badge" style="background: rgba(50,205,50,0.12); color: #32CD32; border-color: rgba(50,205,50,0.25);">
+          <span class="dot" style="background: #32CD32;"></span> Status: Publishing Soon on Google Play
+        </div>
+        <div class="hero-badge">
+          <span class="dot"></span> Android Application Terms of Use
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 16px;">
+        <img src="/kanthastha_icon.jpg" alt="Kanthastha App Icon" style="width: 72px; height: 72px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; box-shadow: 0 8px 24px rgba(0,0,0,0.4);" />
+        <div>
+          <h1 style="margin-bottom: 4px;">Kantastha: Recite &amp; Memorize</h1>
+          <p style="font-size: 14px; color: #32CD32; margin: 0; font-weight: 500;">Sloka Learning &amp; Pronunciation Companion</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 24px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); max-width: 600px; box-shadow: 0 12px 30px rgba(0,0,0,0.5);">
+        <img src="/kanthastha_banner.jpg" alt="Kanthastha Feature Banner" style="width: 100%; height: auto; display: block;" />
+      </div>
+
+      <p>
+        These Terms of Use outline the rules and conditions governing your access to and use of <strong>Kanthastha</strong> ("Kantastha: Recite &amp; Memorize") Android application by ZasDevLabs.
+      </p>
+
+      <div class="meta-bar">
+        <span><span class="dot"></span> Status: Active</span>
+        <span>Effective Date: August 2026</span>
+        <span>Developer: Sashi Kiran Rao &middot; ZasDevLabs</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div class="content">
+
+    <!-- Table of Contents -->
+    <nav class="doc-nav">
+      <div class="doc-nav-title">Quick Navigation</div>
+      <div class="doc-nav-links">
+        <a href="#acceptance">1. Acceptance</a>
+        <a href="#license">2. License Grant</a>
+        <a href="#content-disclaimer">3. Content Disclaimer</a>
+        <a href="#user-library">4. User Library &amp; Notes</a>
+        <a href="#voice-tools">5. Voice &amp; TTS Tools</a>
+        <a href="#ip">6. Intellectual Property</a>
+        <a href="#warranties">7. Warranties</a>
+        <a href="#liability">8. Liability</a>
+        <a href="#governing-law">9. Governing Law</a>
+      </div>
+    </nav>
+
+    <!-- 1. Acceptance -->
+    <section class="section" id="acceptance">
+      <h2><span class="section-badge">1</span> Acceptance of Terms</h2>
+      <p>
+        By downloading, installing, accessing, or using the <strong>Kanthastha</strong> ("Kantastha: Recite &amp; Memorize") Android mobile application ("the App"), you agree to be bound by these Terms of Use ("Terms"). These Terms constitute a binding legal agreement between you ("User") and <strong>ZasDevLabs</strong> (operated by Sashi Kiran Rao).
+      </p>
+      <p>
+        If you do not agree with these Terms, you must discontinue using and uninstall the App immediately.
+      </p>
+    </section>
+
+    <!-- 2. License Grant -->
+    <section class="section" id="license">
+      <h2><span class="section-badge">2</span> License Grant &amp; Permitted Use</h2>
+      <p>
+        ZasDevLabs grants you a revocable, non-exclusive, non-transferable, non-sublicensable, limited license to download and use the App strictly for your personal, educational, non-commercial chanting study, and spiritual practice.
+      </p>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Decompile, reverse engineer, or disassemble any part of the App's source code or algorithmic stanza chunking system.</li>
+        <li>Distribute, lease, rent, sell, or commercialize the App software or its bundled interface components.</li>
+        <li>Use the App in any manner that violates applicable local, national, or international laws.</li>
+      </ul>
+    </section>
+
+    <!-- 3. Content Disclaimer -->
+    <section class="section" id="content-disclaimer">
+      <h2><span class="section-badge">3</span> Base Library &amp; Cultural Content Disclaimer</h2>
+      <p>
+        • <strong>Public Domain Heritage:</strong> The Sanskrit Slokas, Stotras, Mantras, and classical verses contained in the Base Library represent timeless spiritual and cultural literature in the public domain.
+      </p>
+      <p>
+        • <strong>Educational Assistance:</strong> Transliterations, syllabic chunk divisions, and pronunciation aides are provided in good faith to assist learners. Pronunciation nuances, intonations (Svara), and Chandas meter rules may vary according to regional traditions, lineages (Sampradayas), and Vedic traditions. The App serves as an instructional companion rather than a definitive ecclesiastical authority.
+      </p>
+    </section>
+
+    <!-- 4. User Library -->
+    <section class="section" id="user-library">
+      <h2><span class="section-badge">4</span> User-Generated Content &amp; Custom Slokas</h2>
+      <p>
+        • <strong>User Custody:</strong> You are solely responsible for any text, transliterations, translations, stanzas, or notes you input into your custom sloka library.
+      </p>
+      <p>
+        • <strong>Content Standards:</strong> You agree not to enter content that is unlawful, defamatory, abusive, or infringing upon third-party intellectual property rights.
+      </p>
+      <p>
+        • <strong>Local Ownership:</strong> You retain all ownership rights in your custom arrangements and notes stored locally on your device.
+      </p>
+    </section>
+
+    <!-- 5. Voice Tools -->
+    <section class="section" id="voice-tools">
+      <h2><span class="section-badge">5</span> Text-To-Speech &amp; Voice Recording Features</h2>
+      <p>
+        • <strong>Self-Practice Purpose:</strong> The microphone recording and playback features are designed strictly for user self-verification and practice.
+      </p>
+      <p>
+        • <strong>Synthetic TTS:</strong> Spoken audio generated by Text-To-Speech is synthesized using your device's TTS engine and should be used as a helpful pronunciation guide.
+      </p>
+    </section>
+
+    <!-- 6. IP -->
+    <section class="section" id="ip">
+      <h2><span class="section-badge">6</span> Intellectual Property Rights</h2>
+      <p>
+        All software code, graphic designs, icons, UI layouts, animations, branding, and logos ("ZasDevLabs") are the proprietary intellectual property of ZasDevLabs / Sashi Kiran Rao. All rights not explicitly granted herein are reserved.
+      </p>
+    </section>
+
+    <!-- 7. Warranties -->
+    <section class="section" id="warranties">
+      <h2><span class="section-badge">7</span> Disclaimer of Warranties ("AS IS")</h2>
+      <p>
+        THE APP IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. ZASDEVLABS DISCLAIMS ALL WARRANTIES, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+      </p>
+    </section>
+
+    <!-- 8. Liability -->
+    <section class="section" id="liability">
+      <h2><span class="section-badge">8</span> Limitation of Liability</h2>
+      <p>
+        TO THE MAXIMUM EXTENT PERMITTED BY LAW, ZASDEVLABS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE APP.
+      </p>
+    </section>
+
+    <!-- 9. Governing Law -->
+    <section class="section" id="governing-law">
+      <h2><span class="section-badge">9</span> Updates, Termination &amp; Governing Law</h2>
+      <p>
+        • <strong>Updates:</strong> ZasDevLabs may release updates or modify features via Google Play to enhance performance or expand content.
+      </p>
+      <p>
+        • <strong>Governing Law:</strong> These Terms shall be governed by the laws of Karnataka, India.
+      </p>
+      <p>
+        • <strong>Contact:</strong> For questions concerning these Terms, reach out to <a href="mailto:skr@zasdevlabs.tech">skr@zasdevlabs.tech</a>.
+      </p>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>&copy; 2026 Sashi Kiran Rao &middot; ZasDevLabs. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="/kanthastha-privacy.html">Kanthastha Privacy</a>
+        <span>&middot;</span>
+        <a href="/kanthastha-terms.html">Kanthastha Terms</a>
+        <span>&middot;</span>
+        <a href="/privacy-policy">Website Privacy</a>
+        <span>&middot;</span>
+        <a href="/">Portfolio</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

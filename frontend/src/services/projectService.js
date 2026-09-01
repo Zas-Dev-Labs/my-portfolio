@@ -46,16 +46,16 @@ export const INITIAL_DEV_PROJECTS = [
     showTo: null
   },
   {
-    title: 'Smart Dashboard Suite',
+    title: 'Kantastha: Recite & Memorize',
     description:
-      'Enterprise-grade analytics dashboard with real-time data visualization and AI-powered business intelligence insights.',
-    tags: ['Angular', 'Data Viz', 'Enterprise', 'AI'],
-    status: 'In Development',
+      'An Android app for learning, reciting, and memorizing sacred Slokas. Features a pre-defined base library, custom sloka creator, phonetic stanza chunking, Text-to-Speech pronunciation playback, and audio recording for voice practice.',
+    tags: ['Android', 'Kotlin', 'Text-to-Speech', 'Audio Recording', 'Sanskrit'],
+    status: 'Publishing Soon',
     type: 'dev',
-    image: 'https://images.pexels.com/photos/6424583/pexels-photo-6424583.jpeg?auto=compress&cs=tinysrgb&w=600',
+    image: '/kanthastha_banner.jpg',
     order: 3,
     externalLink: '',
-    privacyPolicyLink: '',
+    privacyPolicyLink: '/kanthastha/privacy-policy',
     isActive: true,
     startedOn: '2026-08-01',
     showFrom: '2026-08-01',
@@ -156,10 +156,26 @@ export function subscribeProjects(onSuccess, onError) {
       }));
       onSuccess(fallbackItems);
     } else {
-      const items = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const items = snapshot.docs.map(docSnap => {
+        const data = docSnap.data();
+        if (data.title === 'Smart Dashboard Suite' || data.title?.includes('Kantastha') || data.title?.includes('Kanthastha')) {
+          return {
+            id: docSnap.id,
+            ...INITIAL_DEV_PROJECTS[2],
+            ...data,
+            title: 'Kantastha: Recite & Memorize',
+            description: INITIAL_DEV_PROJECTS[2].description,
+            tags: INITIAL_DEV_PROJECTS[2].tags,
+            status: 'Publishing Soon',
+            privacyPolicyLink: '/kanthastha/privacy-policy',
+            image: '/kanthastha_banner.jpg'
+          };
+        }
+        return {
+          id: docSnap.id,
+          ...data
+        };
+      });
       onSuccess(items);
     }
   }, (err) => {

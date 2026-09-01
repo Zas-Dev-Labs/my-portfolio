@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import nodemailer from 'nodemailer';
@@ -93,10 +94,54 @@ app.post('/api/contact', async (req, res) => {
 
 // Serve frontend
 const distPath = path.join(__dirname, 'frontend/build');
-app.use(express.static(distPath));
+const indexPath = path.join(distPath, 'index.html');
+
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+}
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  return res.status(200).send(`
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <title>Loading Application...</title>
+        <meta http-equiv="refresh" content="2" />
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+          }
+          .box {
+            padding: 32px;
+            background: #1E1E1E;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            max-width: 420px;
+          }
+          h2 { color: #00BFFF; margin-bottom: 10px; font-size: 20px; }
+          p { color: #9ca3af; font-size: 14px; line-height: 1.6; }
+        </style>
+      </head>
+      <body>
+        <div class="box">
+          <h2>Starting ZasDevLabs App...</h2>
+          <p>The application build is compiling and will load automatically in a few seconds.</p>
+        </div>
+      </body>
+    </html>
+  `);
 });
 
 if (!process.env.VERCEL) {

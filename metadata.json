@@ -1,0 +1,6 @@
+{
+  "name": "ZasDevLabs Portfolio",
+  "description": "Portfolio and Android application legal documentation for ZasDevLabs and Kanthastha Sloka Learning app.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

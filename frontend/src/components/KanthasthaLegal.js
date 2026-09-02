@@ -21,34 +21,39 @@ import {
   Mail,
   Globe
 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 
 export default function KanthasthaLegal({ initialTab = 'privacy' }) {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState(
-    location.pathname.includes('terms') || initialTab === 'terms' ? 'terms' : 'privacy'
-  );
+  const navigate = useNavigate();
+
+  // Determine active tab directly from URL pathname, fallback to initialTab
+  const isTerms = location.pathname.includes('terms') || (initialTab === 'terms' && !location.pathname.includes('privacy'));
+  const activeTab = isTerms ? 'terms' : 'privacy';
+
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (location.pathname.includes('terms')) {
-      setActiveTab('terms');
+    if (activeTab === 'terms') {
       document.title = 'Terms of Use — Kantastha: Recite & Memorize | ZasDevLabs';
-    } else if (location.pathname.includes('privacy')) {
-      setActiveTab('privacy');
-      document.title = 'Privacy Policy — Kantastha: Recite & Memorize | ZasDevLabs';
     } else {
-      document.title = activeTab === 'terms'
-        ? 'Terms of Use — Kantastha: Recite & Memorize | ZasDevLabs'
-        : 'Privacy Policy — Kantastha: Recite & Memorize | ZasDevLabs';
+      document.title = 'Privacy Policy — Kantastha: Recite & Memorize | ZasDevLabs';
     }
     return () => {
       document.title = 'Sashi Kiran Rao | ZasDevLabs';
     };
   }, [location.pathname, activeTab]);
+
+  const handleTabChange = (tab) => {
+    if (tab === 'terms') {
+      navigate('/kanthastha/terms-of-use');
+    } else {
+      navigate('/kanthastha/privacy-policy');
+    }
+  };
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -373,10 +378,7 @@ ZasDevLabs does not guarantee that the App will be uninterrupted, error-free, co
             <div className="flex items-center gap-2 p-1 bg-surface-container rounded-2xl border border-white/10">
               <button
                 data-testid="tab-privacy-policy"
-                onClick={() => {
-                  setActiveTab('privacy');
-                  window.history.replaceState(null, '', '/kanthastha/privacy-policy');
-                }}
+                onClick={() => handleTabChange('privacy')}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
                   activeTab === 'privacy'
                     ? 'bg-primary text-primary-fg shadow-lg shadow-primary/20'
@@ -389,10 +391,7 @@ ZasDevLabs does not guarantee that the App will be uninterrupted, error-free, co
 
               <button
                 data-testid="tab-terms-of-use"
-                onClick={() => {
-                  setActiveTab('terms');
-                  window.history.replaceState(null, '', '/kanthastha/terms-of-use');
-                }}
+                onClick={() => handleTabChange('terms')}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
                   activeTab === 'terms'
                     ? 'bg-primary text-primary-fg shadow-lg shadow-primary/20'

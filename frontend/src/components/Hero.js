@@ -140,6 +140,11 @@ export default function Hero() {
                 src="/profile.jpg"
                 alt="Sashi Kiran Rao"
                 data-testid="hero-profile-photo"
+                onError={(e) => {
+                  if (e.target.src && !e.target.src.endsWith('/profile.webp')) {
+                    e.target.src = '/profile.webp';
+                  }
+                }}
                 className="relative w-52 h-52 md:w-72 md:h-72 rounded-full object-cover object-top border-2 border-white/10"
               />
               {/* Floating badge */}

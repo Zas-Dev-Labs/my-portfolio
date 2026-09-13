@@ -73,7 +73,7 @@ export const DEFAULT_BUSINESS_PROFILE = {
       wireNotes: 'Instant payment via Google Pay, PhonePe, Paytm, or BHIM.'
     }
   ],
-  defaultTerms: 'Payment due within 14 days of invoice date. Please quote invoice number in bank remittances. Late payments incur a 1.5% monthly service charge.'
+  defaultTerms: 'Please quote invoice number in bank remittances.'
 };
 
 export const INITIAL_CLIENTS_SEED = [

@@ -422,7 +422,7 @@ export default function InvoiceWorkspace() {
 
         {/* Right Column: Interactive Vector Preview Canvas */}
         <div
-          className={`lg:col-span-6 xl:col-span-7 h-[calc(100vh-6rem)] sticky top-20 ${
+          className={`lg:col-span-6 xl:col-span-7 h-[calc(100vh-6rem)] sticky top-20 print:block print:h-auto ${
             mobileView === 'preview' ? 'block' : 'hidden lg:block'
           }`}
         >

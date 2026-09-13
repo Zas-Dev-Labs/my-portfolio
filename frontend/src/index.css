@@ -78,71 +78,40 @@
     print-color-adjust: exact !important;
   }
 
-  /* 1. Reset layout constraints ONLY on specific outer wrappers to avoid breaking inner invoice grid/flex layouts */
-  html, body, #root {
-    display: block !important;
-    position: static !important;
-    height: auto !important;
-    min-height: auto !important;
-    overflow: visible !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    padding: 0 !important;
+  /* 1. Force the print wrapper to take over the entire page layout */
+  body * {
+    visibility: hidden;
+  }
+
+  .print-wrapper, .print-wrapper * {
+    visibility: visible;
+  }
+
+  .print-wrapper {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
     margin: 0 !important;
-  }
-
-  /* Target the specific root and app wrappers without destroying global .flex */
-  #root > div,
-  #root > div > div,
-  .bg-background, .bg-surface, .bg-neutral-900\/60, .bg-black\/20 {
-    height: auto !important;
-    min-height: auto !important;
-    overflow: visible !important;
-    background: transparent !important;
-    background-color: transparent !important;
+    padding: 0 !important;
+    transform: none !important;
     box-shadow: none !important;
-    border: none !important;
+    background: white !important;
   }
 
-  /* 2. Hide everything marked no-print */
+  /* 2. Hide everything marked no-print entirely from layout flow */
   .no-print,
   .no-print *,
   nav,
   footer,
   aside,
-  button,
-  .lg\:w-80, 
-  .lg\:w-96, 
-  .border-r {
+  button {
     display: none !important;
   }
 
-  /* 3. Isolate print container to be perfect paper */
-  .print-only-target {
-    display: block !important;
-    position: relative !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 auto !important;
-    box-shadow: none !important;
-    border: none !important;
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    color: #111827 !important;
-    transform: none !important;
-  }
-
-  /* 4. Avoid page breaks inside table rows */
+  /* 3. Avoid page breaks inside table rows */
   .invoice-table tr {
     page-break-inside: avoid;
     break-inside: avoid;
-  }
-
-  /* 5. Reset zoom scale */
-  .print-wrapper {
-    transform: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
   }
 }

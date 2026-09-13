@@ -88,9 +88,17 @@ export default function InvoicePaper({
             {sender.title && (
               <p className="text-[11px] text-gray-500">{sender.title}</p>
             )}
-            <div className="text-[11px] text-gray-500 mt-1 flex flex-wrap gap-x-3">
-              {sender.email && <span>{sender.email}</span>}
-              {sender.phone && <span>{sender.phone}</span>}
+            <div className="text-[11px] text-gray-500 mt-1 flex flex-col gap-0.5">
+              <div className="flex flex-wrap gap-x-3">
+                {sender.email && <span>{sender.email}</span>}
+                {sender.phone && <span>{sender.phone}</span>}
+              </div>
+              {sender.address && (
+                <p className="whitespace-pre-wrap mt-0.5 leading-relaxed">{sender.address}</p>
+              )}
+              {sender.vatOrTaxNumber && (
+                <p className="mt-0.5"><span className="font-semibold">GSTIN/Tax ID:</span> {sender.vatOrTaxNumber}</p>
+              )}
             </div>
           </div>
         </div>

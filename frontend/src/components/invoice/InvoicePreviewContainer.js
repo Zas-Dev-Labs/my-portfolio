@@ -36,7 +36,20 @@ export default function InvoicePreviewContainer({
   const handleResetZoom = () => setZoom(85);
 
   const handlePrintOrPdf = () => {
+    const originalTitle = document.title;
+    const companyName = invoice.client?.company || invoice.client?.name || 'Client';
+    const invNum = invoice.invoiceNumber || 'Draft';
+    const invDate = invoice.date || new Date().toISOString().split('T')[0];
+    
+    // Temporarily change the document title so the browser uses it as the default PDF filename
+    document.title = `${companyName} Invoice - ${invNum} - ${invDate}`;
+    
     window.print();
+    
+    // Restore the original title after a short delay (allowing the print dialog to capture it)
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1000);
   };
 
   const handleCopySummary = () => {

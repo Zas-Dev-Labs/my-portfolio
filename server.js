@@ -100,6 +100,11 @@ if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
 }
 
+// 404 for missing static assets to prevent serving index.html as JS/CSS
+app.use('/static', (req, res) => {
+  res.status(404).send('Static asset not found. If the application was recently updated, please hard refresh your browser.');
+});
+
 app.get('*', (req, res) => {
   if (fs.existsSync(indexPath)) {
     return res.sendFile(indexPath);

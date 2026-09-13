@@ -404,7 +404,7 @@ export default function InvoicePaper({
             {invoice.paymentTerms && (
               <p className="text-[10px] text-gray-500 leading-relaxed">
                 <span className="font-semibold text-gray-600">Terms: </span>
-                <span>Please quote invoice number in bank remittances.</span>
+                <span>Please quote the Invoice Number in bank remittances.</span>
               </p>
             )}
           </div>

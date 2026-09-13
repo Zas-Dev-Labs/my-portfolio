@@ -12,6 +12,7 @@ import Footer from './components/Footer';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import Admin from './components/Admin';
 import KanthasthaLegal from './components/KanthasthaLegal';
+import InvoiceApp from './components/invoice/InvoiceApp';
 
 function Portfolio() {
   return (
@@ -49,6 +50,10 @@ function App() {
         <Route path="/sloka-terms-of-use" element={<KanthasthaLegal initialTab="terms" />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/login" element={<Admin />} />
+        <Route path="/tools/invoice" element={<InvoiceApp />} />
+        <Route path="/tools/invoices" element={<InvoiceApp />} />
+        <Route path="/invoices" element={<InvoiceApp />} />
+        <Route path="/admin/invoices" element={<InvoiceApp />} />
       </Routes>
     </BrowserRouter>
   );

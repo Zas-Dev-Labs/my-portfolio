@@ -26,7 +26,8 @@ import {
   Check,
   Calendar,
   Eye,
-  EyeOff
+  EyeOff,
+  FileText
 } from 'lucide-react';
 import { auth } from '../firebase';
 import {
@@ -36,6 +37,11 @@ import {
   deleteProject,
   seedInitialProjects
 } from '../services/projectService';
+import {
+  getEnvironmentMetadata,
+  setEnvironmentMode,
+  subscribeEnvironmentChanges
+} from '../services/environment';
 import Logo from './Logo';
 
 export default function Admin() {
@@ -49,6 +55,7 @@ export default function Admin() {
     }
   });
   const activeUser = user || localUser;
+  const [envMeta, setEnvMeta] = useState(getEnvironmentMetadata());
 
   const [authLoading, setAuthLoading] = useState(true);
   const [username, setUsername] = useState('');
@@ -119,9 +126,19 @@ export default function Admin() {
     return () => unsubscribe();
   }, []);
 
-  // Listen to projects from Firestore
+  // Listen to environment changes
+  useEffect(() => {
+    const unsub = subscribeEnvironmentChanges((newMeta) => {
+      setEnvMeta(newMeta);
+      setLoadingData(true);
+    });
+    return () => unsub();
+  }, []);
+
+  // Listen to projects from Firestore (re-binds when activeUser or environment changes)
   useEffect(() => {
     if (!activeUser) return;
+    setLoadingData(true);
     const unsubscribe = subscribeProjects(
       (items) => {
         setProjects(items);
@@ -133,7 +150,7 @@ export default function Admin() {
       }
     );
     return () => unsubscribe();
-  }, [activeUser]);
+  }, [activeUser, envMeta.activeEnvironment]);
 
   // Auth Submit
   const handleAuth = async (e) => {
@@ -149,8 +166,8 @@ export default function Admin() {
     }
 
     // Read expected admin credentials from environment variables only (no hardcoded fallbacks)
-    const expectedUsername = (process.env.REACT_APP_ADMIN_USERNAME || '').trim();
-    const expectedPassword = (process.env.REACT_APP_ADMIN_PASSWORD || '').trim();
+    const expectedUsername = (process.env.ADMIN_USERNAME || '').trim();
+    const expectedPassword = (process.env.ADMIN_PASSWORD || '').trim();
 
     if (!expectedUsername || !expectedPassword) {
       setAuthError("Credentials don't match.");
@@ -457,13 +474,42 @@ export default function Admin() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-heading font-semibold text-white text-lg">Portfolio Control Center</h1>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">Live DB</span>
+                <div className="flex items-center gap-1.5 bg-surface-container px-2 py-0.5 rounded-lg border border-white/10">
+                  <span
+                    className="w-1.5 h-1.5 rounded-full animate-pulse"
+                    style={{ backgroundColor: envMeta.accentColor }}
+                  />
+                  <span
+                    className="text-[10px] font-mono font-semibold"
+                    style={{ color: envMeta.accentColor }}
+                  >
+                    {envMeta.badgeText}
+                  </span>
+                  <select
+                    value={envMeta.isManualOverride ? envMeta.activeEnvironment : 'auto'}
+                    onChange={(e) => setEnvironmentMode(e.target.value)}
+                    className="bg-transparent text-[10px] text-gray-300 font-mono focus:outline-none cursor-pointer border-l border-white/10 pl-1.5 ml-1"
+                    title="Switch Firestore database target environment"
+                  >
+                    <option value="auto" className="bg-[#1e1e1e] text-gray-200">Auto (Domain)</option>
+                    <option value="preview" className="bg-[#1e1e1e] text-amber-300">Dev / Preview DB</option>
+                    <option value="live" className="bg-[#1e1e1e] text-emerald-300">Live Production DB</option>
+                  </select>
+                </div>
               </div>
               <p className="text-xs text-gray-400">Logged in as {activeUser.email}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              to="/tools/invoice"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary/10 border border-primary/20 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-fg transition-all shadow-sm"
+              title="Open ZasDevLabs Invoice Generator"
+            >
+              <FileText size={14} />
+              <span>Invoice Generator</span>
+            </Link>
             <button
               onClick={handleSeed}
               className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-container border border-white/10 text-xs font-medium text-gray-300 hover:text-white hover:border-white/20 transition-all"

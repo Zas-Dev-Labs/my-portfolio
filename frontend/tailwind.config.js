@@ -16,6 +16,7 @@ module.exports = {
       fontFamily: {
         heading: ['Outfit', 'sans-serif'],
         body: ['Roboto', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
     },
   },

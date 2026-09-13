@@ -96,8 +96,8 @@ export default function InvoicePaper({
               {sender.address && (
                 <p className="whitespace-pre-wrap mt-0.5 leading-relaxed">{sender.address}</p>
               )}
-              {sender.vatOrTaxNumber && (
-                <p className="mt-0.5"><span className="font-semibold">GSTIN/Tax ID:</span> {sender.vatOrTaxNumber}</p>
+              {(sender.taxNumber || sender.vatOrTaxNumber) && (
+                <p className="mt-0.5"><span className="font-semibold">GSTIN/Tax ID:</span> {sender.taxNumber || sender.vatOrTaxNumber}</p>
               )}
             </div>
           </div>

@@ -26,6 +26,17 @@ export default function ClientManager({
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  const generateNextClientNumber = () => {
+    let max = 0;
+    clients.forEach(c => {
+      const num = parseInt(c.clientNumber, 10);
+      if (!isNaN(num) && num > max) {
+        max = num;
+      }
+    });
+    return String(max + 1).padStart(3, '0');
+  };
+
   const emptyClient = {
     name: '',
     company: '',
@@ -33,6 +44,8 @@ export default function ClientManager({
     phone: '',
     address: '',
     vatOrTaxNumber: '',
+    clientNumber: '',
+    isClientNumberFrozen: false,
     currency: 'USD',
     currencySymbol: '$',
     notes: ''
@@ -47,19 +60,28 @@ export default function ClientManager({
     return (
       (c.name || '').toLowerCase().includes(q) ||
       (c.company || '').toLowerCase().includes(q) ||
-      (c.email || '').toLowerCase().includes(q)
+      (c.email || '').toLowerCase().includes(q) ||
+      (c.clientNumber || '').includes(q)
     );
   });
 
   const handleStartCreate = () => {
     setEditingId(null);
-    setFormData(emptyClient);
+    setFormData({
+      ...emptyClient,
+      clientNumber: generateNextClientNumber(),
+      isClientNumberFrozen: false
+    });
     setIsEditing(true);
   };
 
   const handleStartEdit = (client) => {
     setEditingId(client.id);
-    setFormData({ ...client });
+    setFormData({ 
+      ...client, 
+      clientNumber: client.clientNumber || generateNextClientNumber(),
+      isClientNumberFrozen: client.isClientNumberFrozen || false
+    });
     setIsEditing(true);
   };
 
@@ -149,8 +171,13 @@ export default function ClientManager({
                     >
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-heading font-semibold text-sm text-white">
+                          <h4 className="font-heading font-semibold text-sm text-white flex items-center gap-2">
                             {client.company || client.name}
+                            {client.clientNumber && (
+                              <span className="px-1.5 py-0.5 rounded bg-gray-500/20 text-[10px] text-gray-300 font-mono border border-gray-500/30">
+                                ID: {client.clientNumber}
+                              </span>
+                            )}
                           </h4>
                           {client.company && client.name && (
                             <span className="text-[11px] text-gray-400">({client.name})</span>
@@ -245,6 +272,34 @@ export default function ClientManager({
                     onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                     className="w-full bg-surface-container border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary"
                   />
+                </div>
+
+                <div>
+                  <label className="text-[11px] text-gray-300 block mb-1">Client ID Number</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="e.g. 001"
+                      disabled={formData.isClientNumberFrozen}
+                      value={formData.clientNumber}
+                      onChange={(e) => setFormData({ ...formData, clientNumber: e.target.value })}
+                      className="w-full bg-surface-container border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                    />
+                    {!formData.isClientNumberFrozen ? (
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, isClientNumberFrozen: true })}
+                        className="px-3 py-2 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-medium hover:bg-blue-500/30 transition-colors"
+                        title="Freeze Client Number"
+                      >
+                        Freeze
+                      </button>
+                    ) : (
+                      <span className="px-3 py-2 bg-gray-500/20 text-gray-400 border border-gray-500/30 rounded-xl text-xs font-medium flex items-center justify-center">
+                        Frozen
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div>

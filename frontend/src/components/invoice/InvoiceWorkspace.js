@@ -52,7 +52,7 @@ export default function InvoiceWorkspace() {
     invoiceNumber: `ZDL-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
     date: todayStr,
     dueDate: dueStr,
-    status: 'pending',
+    status: 'draft',
     currency: baseProfile?.defaultCurrency || 'USD',
     currencySymbol: baseProfile?.defaultCurrencySymbol || '$',
     accentColor: baseProfile?.defaultAccentColor || '#00BFFF',
@@ -412,11 +412,13 @@ export default function InvoiceWorkspace() {
         >
           <InvoiceForm
             invoice={activeInvoice}
+            invoices={invoices}
             clients={clients}
             businessProfile={profile}
             onUpdateInvoice={(updated) => setActiveInvoice(updated)}
             onOpenClientManager={() => setShowClientModal(true)}
             onOpenBusinessProfile={() => setShowProfileModal(true)}
+            onSaveClient={handleSaveClient}
           />
         </div>
 

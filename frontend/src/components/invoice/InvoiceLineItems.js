@@ -4,6 +4,7 @@ import { Plus, Trash2, Copy, Layers } from 'lucide-react';
 export default function InvoiceLineItems({
   items = [],
   currencySymbol = '$',
+  isFinalized = false,
   onUpdateItems
 }) {
   const handleItemChange = (index, field, value) => {
@@ -93,10 +94,11 @@ export default function InvoiceLineItems({
                   <td className="py-2 px-3">
                     <input
                       type="text"
+                      disabled={isFinalized}
                       placeholder="Service name, milestone, or deliverable..."
                       value={item.description}
                       onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-                      className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-primary"
+                      className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-primary disabled:opacity-50"
                     />
                   </td>
                   <td className="py-2 px-2">
@@ -104,26 +106,29 @@ export default function InvoiceLineItems({
                       type="number"
                       min="0"
                       step="any"
+                      disabled={isFinalized}
                       value={item.unitPrice}
                       onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
-                      className="w-full bg-surface border border-white/10 rounded-lg px-2 py-1.5 text-xs text-right font-mono text-white focus:outline-none focus:border-primary"
+                      className="w-full bg-surface border border-white/10 rounded-lg px-2 py-1.5 text-xs text-right font-mono text-white focus:outline-none focus:border-primary disabled:opacity-50"
                     />
                   </td>
                   <td className="py-2 px-2 text-center">
                     <div className="flex items-center justify-center gap-1">
                       <button
                         type="button"
+                        disabled={isFinalized}
                         onClick={() => handleDuplicateItem(index)}
                         title="Duplicate item"
-                        className="p-1.5 rounded text-gray-400 hover:text-primary hover:bg-white/5 transition-colors"
+                        className="p-1.5 rounded text-gray-400 hover:text-primary hover:bg-white/5 transition-colors disabled:opacity-50"
                       >
                         <Copy size={13} />
                       </button>
                       <button
                         type="button"
+                        disabled={isFinalized}
                         onClick={() => handleRemoveItem(index)}
                         title="Delete item"
-                        className="p-1.5 rounded text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        className="p-1.5 rounded text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                       >
                         <Trash2 size={13} />
                       </button>
@@ -151,15 +156,17 @@ export default function InvoiceLineItems({
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
+                    disabled={isFinalized}
                     onClick={() => handleDuplicateItem(index)}
-                    className="p-1 text-gray-400 hover:text-primary"
+                    className="p-1 text-gray-400 hover:text-primary disabled:opacity-50"
                   >
                     <Copy size={13} />
                   </button>
                   <button
                     type="button"
+                    disabled={isFinalized}
                     onClick={() => handleRemoveItem(index)}
-                    className="p-1 text-gray-400 hover:text-red-400"
+                    className="p-1 text-gray-400 hover:text-red-400 disabled:opacity-50"
                   >
                     <Trash2 size={13} />
                   </button>
@@ -168,10 +175,11 @@ export default function InvoiceLineItems({
 
               <input
                 type="text"
+                disabled={isFinalized}
                 placeholder="Description / scope of work"
                 value={item.description}
                 onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-                className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-primary"
+                className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-primary disabled:opacity-50"
               />
 
               <div>
@@ -180,9 +188,10 @@ export default function InvoiceLineItems({
                   type="number"
                   min="0"
                   step="any"
+                  disabled={isFinalized}
                   value={item.unitPrice}
                   onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
-                  className="w-full bg-surface border border-white/10 rounded-lg px-2 py-1 text-xs text-right font-mono text-white"
+                  className="w-full bg-surface border border-white/10 rounded-lg px-2 py-1 text-xs text-right font-mono text-white disabled:opacity-50"
                 />
               </div>
             </div>
@@ -192,8 +201,9 @@ export default function InvoiceLineItems({
 
       <button
         type="button"
+        disabled={isFinalized}
         onClick={handleAddItem}
-        className="w-full py-2.5 px-3 border border-dashed border-white/20 hover:border-primary/60 rounded-xl text-xs text-gray-300 hover:text-primary flex items-center justify-center gap-1.5 transition-colors bg-surface/40 hover:bg-primary/5"
+        className="w-full py-2.5 px-3 border border-dashed border-white/20 hover:border-primary/60 rounded-xl text-xs text-gray-300 hover:text-primary flex items-center justify-center gap-1.5 transition-colors bg-surface/40 hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Plus size={14} />
         <span>Add Line Item</span>

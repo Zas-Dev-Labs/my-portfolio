@@ -41,6 +41,8 @@ export const INITIAL_CLIENTS_SEED = [
     vatOrTaxNumber: 'US-EIN 94-3829104',
     currency: 'USD',
     currencySymbol: '$',
+    clientNumber: '001',
+    isClientNumberFrozen: true,
     notes: 'Net 14 payment terms agreed in Master Services Agreement.'
   },
   {
@@ -53,6 +55,8 @@ export const INITIAL_CLIENTS_SEED = [
     vatOrTaxNumber: 'GSTIN: 29AABCU9603R1ZM',
     currency: 'INR',
     currencySymbol: '₹',
+    clientNumber: '002',
+    isClientNumberFrozen: true,
     notes: 'Hardware prototyping & 3D printing custom enclosure work.'
   }
 ];
@@ -78,7 +82,7 @@ export class LocalStorageProvider extends StorageProvider {
           invoiceNumber: 'ZDL-2026-001',
           date: new Date().toISOString().split('T')[0],
           dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          status: 'pending',
+          status: 'draft',
           currency: 'USD',
           currencySymbol: '$',
           accentColor: '#00BFFF',
@@ -176,6 +180,17 @@ export class LocalStorageProvider extends StorageProvider {
     const updated = { ...client };
     if (!updated.id) {
       updated.id = `cli_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    }
+    if (!updated.clientNumber) {
+      let max = 0;
+      list.forEach(c => {
+        const num = parseInt(c.clientNumber, 10);
+        if (!isNaN(num) && num > max) {
+          max = num;
+        }
+      });
+      updated.clientNumber = String(max + 1).padStart(3, '0');
+      updated.isClientNumberFrozen = true;
     }
     const idx = list.findIndex(c => c.id === updated.id);
     let newList;

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInAnonymously,
   onAuthStateChanged
 } from 'firebase/auth';
 import { Lock, ShieldAlert, ArrowLeft, LogIn, CheckCircle2, Eye, EyeOff } from 'lucide-react';
@@ -83,52 +84,76 @@ export default function InvoiceAuthGate({ children }) {
       return;
     }
 
-    const expectedUsername = (process.env.ADMIN_USERNAME || '').trim();
-    const expectedPassword = (process.env.ADMIN_PASSWORD || '').trim();
-
-    if (!expectedUsername || !expectedPassword) {
-      setAuthError('Admin credentials not configured in environment.');
-      setSubmitting(false);
-      return;
-    }
-
-    const isUserMatch =
-      inputUser.toLowerCase() === expectedUsername.toLowerCase() ||
-      (expectedUsername.indexOf('@') === -1 &&
-        inputUser.toLowerCase() === `${expectedUsername.toLowerCase()}@zasdevlabs.com`);
-
-    const isPassMatch = inputPass === expectedPassword;
-
-    if (!isUserMatch || !isPassMatch) {
-      setAuthError('Invalid credentials. Access restricted to ZasDevLabs administrator.');
-      setSubmitting(false);
-      return;
-    }
-
-    // Credentials match!
-    const adminEmail = expectedUsername.includes('@')
-      ? expectedUsername.toLowerCase()
-      : `${expectedUsername.toLowerCase()}@zasdevlabs.com`;
-
     try {
-      await signInWithEmailAndPassword(auth, adminEmail, expectedPassword);
-    } catch (err) {
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-        try {
-          await createUserWithEmailAndPassword(auth, adminEmail, expectedPassword);
-        } catch (cErr) {
-          console.warn('Firebase provision error, using local session:', cErr);
+      // 1. Authenticate via server-side endpoint
+      let isVerified = false;
+      let adminEmail = inputUser.includes('@') ? inputUser.toLowerCase() : `${inputUser.toLowerCase()}@zasdevlabs.com`;
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: inputUser, password: inputPass })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          isVerified = true;
+          if (data.email) adminEmail = data.email;
+        }
+      } catch (netErr) {
+        console.warn('Backend login endpoint unavailable, trying direct auth:', netErr);
+      }
+
+      // 2. Try Firebase Auth signin
+      let fbUser = null;
+      try {
+        const cred = await signInWithEmailAndPassword(auth, adminEmail, inputPass);
+        fbUser = cred.user;
+        isVerified = true;
+      } catch (err) {
+        if (
+          err.code === 'auth/user-not-found' ||
+          err.code === 'auth/invalid-credential' ||
+          err.code === 'auth/wrong-password'
+        ) {
+          if (isVerified) {
+            try {
+              const newCred = await createUserWithEmailAndPassword(auth, adminEmail, inputPass);
+              fbUser = newCred.user;
+            } catch (createErr) {
+              try {
+                const anonCred = await signInAnonymously(auth);
+                fbUser = anonCred.user;
+              } catch (anonErr) {
+                console.warn('Firebase anonymous fallback error:', anonErr);
+              }
+            }
+          }
+        } else if (isVerified) {
+          try {
+            const anonCred = await signInAnonymously(auth);
+            fbUser = anonCred.user;
+          } catch (anonErr) {}
         }
       }
+
+      if (!isVerified) {
+        setAuthError('Invalid username or password.');
+        setSubmitting(false);
+        return;
+      }
+
+      const adminSession = { email: adminEmail, uid: fbUser?.uid || 'local-admin' };
+      setLocalUser(adminSession);
+      try {
+        sessionStorage.setItem('admin_session', JSON.stringify(adminSession));
+      } catch (e) {}
+    } catch (generalErr) {
+      console.error('Login error:', generalErr);
+      setAuthError('Authentication error. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
-
-    const adminSession = { email: adminEmail, uid: 'local-admin' };
-    setLocalUser(adminSession);
-    try {
-      sessionStorage.setItem('admin_session', JSON.stringify(adminSession));
-    } catch (e) {}
-
-    setSubmitting(false);
   };
 
   if (checkingAuth) {

@@ -67,7 +67,9 @@ export default function InvoicePreviewContainer({
       0
     );
     let discount = parseFloat(invoice.discountTotal) || 0;
+    let amountPaid = parseFloat(invoice.amountPaid) || 0;
     let grandTotal = Math.max(0, subtotal - discount);
+    let totalDue = Math.max(0, grandTotal - amountPaid);
 
     const summary = `ZasDevLabs Invoice #${invNum}
 ------------------------------------------------
@@ -78,8 +80,9 @@ Due Date: ${dueDate}
 Deliverables:
 ${itemsText}
 
-Total Amount Due: ${currency}${grandTotal.toFixed(2)}
-Payment Details: ${invoice.bankDetails?.bankName || 'HDFC Bank Ltd.'} - A/C ${invoice.bankDetails?.accountNumber || '50200012345678'}
+Subtotal: ${currency}${subtotal.toFixed(2)}
+${discount > 0 ? `${invoice.discountLabel || 'Discount'}: -${currency}${discount.toFixed(2)}\n` : ''}${amountPaid > 0 ? `Amount Paid: -${currency}${amountPaid.toFixed(2)}\n` : ''}Total Due: ${currency}${totalDue.toFixed(2)}
+Payment Details: ${invoice.bankDetails?.bankName || 'HDFC Bank Ltd.'} - A/C ${invoice.bankDetails?.accountNumber || '50100195551760'}
 
 Thank you for choosing ZasDevLabs!
 `;

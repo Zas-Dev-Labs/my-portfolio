@@ -48,41 +48,94 @@ export default function ClientManager({
     isClientNumberFrozen: false,
     currency: 'USD',
     currencySymbol: '$',
+    apps: [],
+    handledApps: '',
+    accentColor: '#00BFFF',
     notes: ''
   };
 
   const [formData, setFormData] = useState(emptyClient);
+  const [appInputText, setAppInputText] = useState('');
 
   if (!isOpen) return null;
 
+  const parseAppsList = (client) => {
+    if (Array.isArray(client?.apps) && client.apps.length > 0) {
+      return client.apps.map((a) => (typeof a === 'string' ? { id: `app_${a}`, name: a } : a));
+    }
+    if (typeof client?.handledApps === 'string' && client.handledApps.trim()) {
+      return client.handledApps
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((name) => ({ id: `app_${name.replace(/\s+/g, '_')}`, name }));
+    }
+    return [];
+  };
+
   const filteredClients = clients.filter((c) => {
     const q = search.toLowerCase();
+    const appsText = (parseAppsList(c)).map(a => a.name).join(' ').toLowerCase();
     return (
       (c.name || '').toLowerCase().includes(q) ||
       (c.company || '').toLowerCase().includes(q) ||
       (c.email || '').toLowerCase().includes(q) ||
-      (c.clientNumber || '').includes(q)
+      (c.clientNumber || '').includes(q) ||
+      (c.handledApps || '').toLowerCase().includes(q) ||
+      appsText.includes(q)
     );
   });
 
   const handleStartCreate = () => {
     setEditingId(null);
+    setAppInputText('');
     setFormData({
       ...emptyClient,
       clientNumber: generateNextClientNumber(),
-      isClientNumberFrozen: false
+      isClientNumberFrozen: false,
+      apps: []
     });
     setIsEditing(true);
   };
 
   const handleStartEdit = (client) => {
     setEditingId(client.id);
+    setAppInputText('');
+    const parsedApps = parseAppsList(client);
     setFormData({ 
+      ...emptyClient,
       ...client, 
       clientNumber: client.clientNumber || generateNextClientNumber(),
-      isClientNumberFrozen: client.isClientNumberFrozen || false
+      isClientNumberFrozen: client.isClientNumberFrozen || false,
+      apps: parsedApps,
+      handledApps: parsedApps.map((a) => a.name).join(', '),
+      accentColor: client.accentColor || '#00BFFF'
     });
     setIsEditing(true);
+  };
+
+  const handleAddAppTag = () => {
+    if (!appInputText.trim()) return;
+    const newApp = {
+      id: `app_${Date.now()}`,
+      name: appInputText.trim()
+    };
+    const updatedApps = [...(formData.apps || []), newApp];
+    setFormData({
+      ...formData,
+      apps: updatedApps,
+      handledApps: updatedApps.map((a) => a.name).join(', ')
+    });
+    setAppInputText('');
+  };
+
+  const handleRemoveAppTag = (appId) => {
+    const updatedApps = (formData.apps || []).filter((a) => a.id !== appId && a.name !== appId);
+    setFormData({
+      ...formData,
+      apps: updatedApps,
+      handledApps: updatedApps.map((a) => a.name).join(', ')
+    });
   };
 
   const handleSubmit = (e) => {
@@ -171,6 +224,11 @@ export default function ClientManager({
                     >
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full shrink-0"
+                            style={{ backgroundColor: client.accentColor || '#00BFFF' }}
+                            title={`Default Accent: ${client.accentColor || '#00BFFF'}`}
+                          />
                           <h4 className="font-heading font-semibold text-sm text-white flex items-center gap-2">
                             {client.company || client.name}
                             {client.clientNumber && (
@@ -197,6 +255,20 @@ export default function ClientManager({
                             </span>
                           )}
                         </div>
+                        {/* Apps / Websites list */}
+                        {parseAppsList(client).length > 0 && (
+                          <div className="flex flex-wrap items-center gap-1 mt-1">
+                            <span className="text-[10px] text-gray-500 font-medium">Apps:</span>
+                            {parseAppsList(client).map((app) => (
+                              <span
+                                key={app.id || app.name}
+                                className="px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 text-[10px]"
+                              >
+                                {app.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         {client.address && (
                           <p className="text-[11px] text-gray-500 line-clamp-1 mt-0.5">
                             {client.address}
@@ -365,6 +437,98 @@ export default function ClientManager({
                     <option value="CAD">CAD (CA$)</option>
                     <option value="AUD">AUD (AU$)</option>
                   </select>
+                </div>
+
+                <div className="sm:col-span-2 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] text-gray-300 font-medium">
+                      Apps & Websites Portfolio (Clients &rarr; Apps)
+                    </label>
+                    <span className="text-[10px] text-gray-500">
+                      {(formData.apps || []).length} registered
+                    </span>
+                  </div>
+
+                  {/* Existing apps tags */}
+                  <div className="flex flex-wrap items-center gap-1.5 min-h-[32px] p-2 bg-surface-container/60 border border-white/10 rounded-xl">
+                    {(formData.apps || []).length === 0 ? (
+                      <span className="text-[11px] text-gray-500 italic">No apps/websites added yet. Add below.</span>
+                    ) : (
+                      (formData.apps || []).map((app) => (
+                        <span
+                          key={app.id || app.name}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs"
+                        >
+                          <span>{app.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAppTag(app.id || app.name)}
+                            className="text-cyan-400 hover:text-white"
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Add app input */}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Add app/website name (e.g. Acme Mobile App, customer.acme.io)..."
+                      value={appInputText}
+                      onChange={(e) => setAppInputText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddAppTag();
+                        }
+                      }}
+                      className="flex-1 bg-surface-container border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddAppTag}
+                      disabled={!appInputText.trim()}
+                      className="px-3 py-1.5 bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary text-xs font-semibold rounded-xl disabled:opacity-40 transition-colors flex items-center gap-1"
+                    >
+                      <Plus size={13} />
+                      <span>Add App</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="text-[11px] text-gray-300 block mb-1.5">
+                    Default Invoice Theme Color
+                  </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {[
+                      { hex: '#00BFFF', name: 'Electric Cyan' },
+                      { hex: '#32CD32', name: 'Neon Lime' },
+                      { hex: '#6366F1', name: 'Indigo' },
+                      { hex: '#EC4899', name: 'Pink Rose' },
+                      { hex: '#F59E0B', name: 'Amber Glow' },
+                      { hex: '#10B981', name: 'Emerald' },
+                      { hex: '#8B5CF6', name: 'Violet' },
+                      { hex: '#3B82F6', name: 'Ocean Blue' }
+                    ].map((c) => (
+                      <button
+                        key={c.hex}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, accentColor: c.hex })}
+                        className={`px-2.5 py-1 rounded-lg border text-xs flex items-center gap-1.5 transition-all ${
+                          (formData.accentColor || '#00BFFF') === c.hex
+                            ? 'border-white ring-1 ring-white/50 text-white bg-white/10 font-semibold'
+                            : 'border-white/10 text-gray-400 hover:text-white bg-surface-container'
+                        }`}
+                      >
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c.hex }} />
+                        <span>{c.name}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="sm:col-span-2">

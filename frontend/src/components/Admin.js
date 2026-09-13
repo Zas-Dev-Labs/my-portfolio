@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInAnonymously,
   signOut,
   onAuthStateChanged
 } from 'firebase/auth';
@@ -161,60 +162,86 @@ export default function Admin() {
     const inputPass = password.trim();
 
     if (!inputUser || !inputPass) {
-      setAuthError("Credentials don't match.");
+      setAuthError('Please enter both username and password.');
       return;
     }
 
-    // Read expected admin credentials from environment variables only (no hardcoded fallbacks)
-    const expectedUsername = (process.env.ADMIN_USERNAME || '').trim();
-    const expectedPassword = (process.env.ADMIN_PASSWORD || '').trim();
-
-    if (!expectedUsername || !expectedPassword) {
-      setAuthError("Credentials don't match.");
-      return;
-    }
-
-    // Verify username and password strictly against environment variables
-    const isUserMatch =
-      inputUser.toLowerCase() === expectedUsername.toLowerCase() ||
-      (expectedUsername.indexOf('@') === -1 &&
-        inputUser.toLowerCase() === `${expectedUsername.toLowerCase()}@zasdevlabs.com`);
-
-    const isPassMatch = inputPass === expectedPassword;
-
-    if (!isUserMatch || !isPassMatch) {
-      setAuthError("Credentials don't match.");
-      return;
-    }
-
-    // Credentials match! Sign in to Firebase Auth or set fallback session
-    const adminEmail = expectedUsername.includes('@')
-      ? expectedUsername.toLowerCase()
-      : `${expectedUsername.toLowerCase()}@zasdevlabs.com`;
+    setSubmitting(true);
 
     try {
-      await signInWithEmailAndPassword(auth, adminEmail, expectedPassword);
-    } catch (err) {
-      if (
-        err.code === 'auth/user-not-found' ||
-        err.code === 'auth/invalid-credential'
-      ) {
-        try {
-          await createUserWithEmailAndPassword(auth, adminEmail, expectedPassword);
-        } catch (createErr) {
-          console.warn('Firebase Admin auto-provision error, activating fallback session:', createErr);
+      // 1. Authenticate via server-side endpoint
+      let isVerified = false;
+      let adminEmail = inputUser.includes('@') ? inputUser.toLowerCase() : `${inputUser.toLowerCase()}@zasdevlabs.com`;
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: inputUser, password: inputPass })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          isVerified = true;
+          if (data.email) adminEmail = data.email;
+        } else if (!res.ok && res.status === 401) {
+          // If server explicitly rejected, check direct Firebase login before erroring
+          isVerified = false;
         }
-      } else {
-        console.warn('Firebase Auth signin error, activating fallback session:', err);
+      } catch (netErr) {
+        console.warn('Backend login endpoint unavailable, trying direct auth:', netErr);
       }
-    }
 
-    // Ensure session is saved locally for immediate access
-    const adminSession = { email: adminEmail, uid: 'local-admin' };
-    setLocalUser(adminSession);
-    try {
-      sessionStorage.setItem('admin_session', JSON.stringify(adminSession));
-    } catch (e) {}
+      // 2. Try Firebase Auth signin
+      let fbUser = null;
+      try {
+        const cred = await signInWithEmailAndPassword(auth, adminEmail, inputPass);
+        fbUser = cred.user;
+        isVerified = true;
+      } catch (err) {
+        if (
+          err.code === 'auth/user-not-found' ||
+          err.code === 'auth/invalid-credential' ||
+          err.code === 'auth/wrong-password'
+        ) {
+          if (isVerified) {
+            try {
+              const newCred = await createUserWithEmailAndPassword(auth, adminEmail, inputPass);
+              fbUser = newCred.user;
+            } catch (createErr) {
+              try {
+                const anonCred = await signInAnonymously(auth);
+                fbUser = anonCred.user;
+              } catch (anonErr) {
+                console.warn('Firebase anonymous fallback error:', anonErr);
+              }
+            }
+          }
+        } else if (isVerified) {
+          try {
+            const anonCred = await signInAnonymously(auth);
+            fbUser = anonCred.user;
+          } catch (anonErr) {}
+        }
+      }
+
+      if (!isVerified) {
+        setAuthError('Invalid username or password.');
+        setSubmitting(false);
+        return;
+      }
+
+      // 3. Set active local session
+      const adminSession = { email: adminEmail, uid: fbUser?.uid || 'local-admin' };
+      setLocalUser(adminSession);
+      try {
+        sessionStorage.setItem('admin_session', JSON.stringify(adminSession));
+      } catch (err) {}
+    } catch (generalErr) {
+      console.error('Authentication error:', generalErr);
+      setAuthError('Authentication error. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleLogout = async () => {

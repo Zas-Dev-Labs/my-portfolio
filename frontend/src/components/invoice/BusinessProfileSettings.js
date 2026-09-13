@@ -6,7 +6,10 @@ import {
   Check,
   X,
   Upload,
-  RefreshCw
+  RefreshCw,
+  Plus,
+  Trash2,
+  Edit2
 } from 'lucide-react';
 
 export default function BusinessProfileSettings({
@@ -15,6 +18,26 @@ export default function BusinessProfileSettings({
   profile,
   onSaveProfile
 }) {
+  const initialAccounts = (profile?.paymentAccounts && profile.paymentAccounts.length > 0)
+    ? profile.paymentAccounts
+    : (profile?.bankDetails?.bankName
+      ? [{
+          id: 'acc_1',
+          name: 'Primary Account',
+          bankName: profile.bankDetails.bankName || '',
+          accountName: profile.bankDetails.accountName || '',
+          accountNumber: profile.bankDetails.accountNumber || '',
+          routingOrIfsc: profile.bankDetails.routingOrIfsc || '',
+          swiftBic: profile.bankDetails.swiftBic || '',
+          upiId: profile.bankDetails.upiId || '',
+          wireNotes: profile.bankDetails.wireNotes || ''
+        }]
+      : []);
+
+  const [paymentAccounts, setPaymentAccounts] = useState(initialAccounts);
+  const [editingAccountId, setEditingAccountId] = useState(null);
+  const [accountDraft, setAccountDraft] = useState(null);
+
   const [formData, setFormData] = useState({
     ...profile,
     bankDetails: {
@@ -32,14 +55,43 @@ export default function BusinessProfileSettings({
     }));
   };
 
-  const handleBankChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      bankDetails: {
-        ...prev.bankDetails,
-        [field]: value
-      }
-    }));
+  const handleStartAddAccount = () => {
+    setEditingAccountId('new');
+    setAccountDraft({
+      id: `acc_${Date.now()}`,
+      name: '',
+      bankName: '',
+      accountName: profile?.ownerName || '',
+      accountNumber: '',
+      routingOrIfsc: '',
+      swiftBic: '',
+      upiId: '',
+      wireNotes: ''
+    });
+  };
+
+  const handleStartEditAccount = (acc) => {
+    setEditingAccountId(acc.id);
+    setAccountDraft({ ...acc });
+  };
+
+  const handleSaveAccountDraft = () => {
+    if (!accountDraft.name && !accountDraft.bankName) return;
+    if (editingAccountId === 'new') {
+      setPaymentAccounts([...paymentAccounts, accountDraft]);
+    } else {
+      setPaymentAccounts(paymentAccounts.map((a) => (a.id === editingAccountId ? accountDraft : a)));
+    }
+    setEditingAccountId(null);
+    setAccountDraft(null);
+  };
+
+  const handleDeleteAccount = (accId) => {
+    setPaymentAccounts(paymentAccounts.filter((a) => a.id !== accId));
+    if (editingAccountId === accId) {
+      setEditingAccountId(null);
+      setAccountDraft(null);
+    }
   };
 
   const handleLogoUpload = (e) => {
@@ -59,7 +111,13 @@ export default function BusinessProfileSettings({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSaveProfile(formData);
+    const primaryBank = paymentAccounts.length > 0 ? paymentAccounts[0] : formData.bankDetails;
+    const finalProfile = {
+      ...formData,
+      paymentAccounts,
+      bankDetails: primaryBank
+    };
+    onSaveProfile(finalProfile);
     setSaved(true);
     setTimeout(() => {
       setSaved(false);
@@ -223,74 +281,204 @@ export default function BusinessProfileSettings({
             </div>
           </div>
 
-          {/* Wire & Bank Remittance Instructions */}
+          {/* Multiple Payment Accounts & Remittance Options */}
           <div className="space-y-3">
-            <h3 className="font-heading font-semibold text-xs text-primary uppercase tracking-wider flex items-center gap-1.5">
-              <CreditCard size={14} />
-              <span>Remittance & Wire Details</span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="text-[11px] text-gray-300 block mb-1">Bank Name</label>
-                <input
-                  type="text"
-                  value={formData.bankDetails?.bankName || ''}
-                  onChange={(e) => handleBankChange('bankName', e.target.value)}
-                  className="w-full bg-surface-container border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] text-gray-300 block mb-1">Account Beneficiary Name</label>
-                <input
-                  type="text"
-                  value={formData.bankDetails?.accountName || ''}
-                  onChange={(e) => handleBankChange('accountName', e.target.value)}
-                  className="w-full bg-surface-container border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] text-gray-300 block mb-1">Account Number / IBAN</label>
-                <input
-                  type="text"
-                  value={formData.bankDetails?.accountNumber || ''}
-                  onChange={(e) => handleBankChange('accountNumber', e.target.value)}
-                  className="w-full bg-surface-container border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-primary"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] text-gray-300 block mb-1">IFSC / Routing Code</label>
-                <input
-                  type="text"
-                  value={formData.bankDetails?.routingOrIfsc || ''}
-                  onChange={(e) => handleBankChange('routingOrIfsc', e.target.value)}
-                  className="w-full bg-surface-container border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-primary"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] text-gray-300 block mb-1">SWIFT / BIC Code (for International)</label>
-                <input
-                  type="text"
-                  value={formData.bankDetails?.swiftBic || ''}
-                  onChange={(e) => handleBankChange('swiftBic', e.target.value)}
-                  className="w-full bg-surface-container border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-primary"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] text-gray-300 block mb-1">UPI ID (India)</label>
-                <input
-                  type="text"
-                  value={formData.bankDetails?.upiId || ''}
-                  onChange={(e) => handleBankChange('upiId', e.target.value)}
-                  className="w-full bg-surface-container border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-primary"
-                />
-              </div>
+            <div className="flex items-center justify-between">
+              <h3 className="font-heading font-semibold text-xs text-primary uppercase tracking-wider flex items-center gap-1.5">
+                <CreditCard size={14} />
+                <span>Payment Remittance Accounts ({paymentAccounts.length})</span>
+              </h3>
+              {!editingAccountId && (
+                <button
+                  type="button"
+                  onClick={handleStartAddAccount}
+                  className="px-2.5 py-1 bg-primary/10 hover:bg-primary text-primary hover:text-primary-fg border border-primary/20 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all"
+                >
+                  <Plus size={12} />
+                  <span>Add Payment Account</span>
+                </button>
+              )}
             </div>
+
+            {/* List of Configured Payment Accounts */}
+            <div className="space-y-2">
+              {paymentAccounts.map((acc, index) => (
+                <div
+                  key={acc.id || index}
+                  className="p-3 bg-surface-container border border-white/10 rounded-xl flex items-center justify-between gap-2"
+                >
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-white text-xs">
+                        {acc.name || acc.bankName || 'Unnamed Account'}
+                      </span>
+                      {index === 0 && (
+                        <span className="px-1.5 py-0.2 bg-primary/20 text-primary text-[9px] font-mono rounded">
+                          Default Primary
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-gray-400">
+                      {acc.bankName && <span>{acc.bankName}</span>}
+                      {acc.accountNumber && <span> • A/C: {acc.accountNumber}</span>}
+                      {acc.upiId && <span> • UPI: {acc.upiId}</span>}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleStartEditAccount(acc)}
+                      title="Edit Account"
+                      className="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+                    >
+                      <Edit2 size={13} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAccount(acc.id)}
+                      title="Delete Account"
+                      className="p-1.5 text-gray-400 hover:text-red-400 rounded-lg hover:bg-red-500/10 transition-colors"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {paymentAccounts.length === 0 && !editingAccountId && (
+                <div className="p-4 border border-dashed border-white/10 rounded-xl text-center text-gray-400 text-xs">
+                  No payment accounts configured yet. Click "Add Payment Account" to add one.
+                </div>
+              )}
+            </div>
+
+            {/* Inline Account Editor */}
+            {editingAccountId && accountDraft && (
+              <div className="p-3.5 bg-surface-container/90 border border-primary/30 rounded-xl space-y-3 mt-2">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <span className="font-semibold text-primary text-xs">
+                    {editingAccountId === 'new' ? 'Add New Payment Account' : 'Edit Payment Account'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => { setEditingAccountId(null); setAccountDraft(null); }}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] text-gray-300 block mb-1">
+                      Account Label / Friendly Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. HDFC Bank (Domestic INR), Wise (USD Global Wire), UPI Direct"
+                      value={accountDraft.name || ''}
+                      onChange={(e) => setAccountDraft({ ...accountDraft, name: e.target.value })}
+                      className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-gray-300 block mb-1">Bank Name *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. HDFC Bank Ltd., Wise Payments"
+                      value={accountDraft.bankName || ''}
+                      onChange={(e) => setAccountDraft({ ...accountDraft, bankName: e.target.value })}
+                      className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-gray-300 block mb-1">Account Beneficiary Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. ZasDevLabs / Sashi Kiran Rao"
+                      value={accountDraft.accountName || ''}
+                      onChange={(e) => setAccountDraft({ ...accountDraft, accountName: e.target.value })}
+                      className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-gray-300 block mb-1">Account Number / IBAN</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 50200012345678"
+                      value={accountDraft.accountNumber || ''}
+                      onChange={(e) => setAccountDraft({ ...accountDraft, accountNumber: e.target.value })}
+                      className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-gray-300 block mb-1">IFSC / Routing Code</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. HDFC0001234 or 026073150"
+                      value={accountDraft.routingOrIfsc || ''}
+                      onChange={(e) => setAccountDraft({ ...accountDraft, routingOrIfsc: e.target.value })}
+                      className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-gray-300 block mb-1">SWIFT / BIC Code</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. HDFCINBBXXX or CMFUS33"
+                      value={accountDraft.swiftBic || ''}
+                      onChange={(e) => setAccountDraft({ ...accountDraft, swiftBic: e.target.value })}
+                      className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-gray-300 block mb-1">UPI ID (India)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. skr@zasdevlabs.tech"
+                      value={accountDraft.upiId || ''}
+                      onChange={(e) => setAccountDraft({ ...accountDraft, upiId: e.target.value })}
+                      className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] text-gray-300 block mb-1">Remittance Notes / Instructions</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Please quote invoice number in wire memo. ACH / Fedwire accepted."
+                      value={accountDraft.wireNotes || ''}
+                      onChange={(e) => setAccountDraft({ ...accountDraft, wireNotes: e.target.value })}
+                      className="w-full bg-surface border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-primary"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => { setEditingAccountId(null); setAccountDraft(null); }}
+                    className="px-3 py-1 text-xs text-gray-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveAccountDraft}
+                    className="px-3 py-1 bg-primary text-primary-fg rounded-lg text-xs font-semibold"
+                  >
+                    Save Account
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Default Terms */}

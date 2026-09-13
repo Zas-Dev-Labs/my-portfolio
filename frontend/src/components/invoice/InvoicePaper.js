@@ -24,13 +24,33 @@ export default function InvoicePaper({
   const discountTotal = parseFloat(invoice.discountTotal) || 0;
   const shippingOrExtra = parseFloat(invoice.shippingOrExtra) || 0;
   const grandTotal = Math.max(0, subtotal + totalTax + shippingOrExtra - discountTotal);
+  const amountPaid = parseFloat(invoice.amountPaid) || 0;
+  const totalDue = Math.max(0, grandTotal - amountPaid);
 
   const sender = invoice.sender || {};
   const client = invoice.client || {};
-  const bank = invoice.bankDetails || sender.bankDetails || {};
+  // If user explicitly deselected payment account (empty string), do not fallback to sender bank
+  let bank = {};
+  if (invoice.selectedPaymentAccountId === '' || invoice.showBankDetails === false) {
+    bank = {};
+  } else if (invoice.selectedPaymentAccountId && sender.paymentAccounts?.length) {
+    bank =
+      sender.paymentAccounts.find((a) => String(a.id) === String(invoice.selectedPaymentAccountId)) ||
+      invoice.bankDetails ||
+      sender.bankDetails ||
+      {};
+  } else {
+    bank = invoice.bankDetails || sender.paymentAccounts?.[0] || sender.bankDetails || {};
+  }
+
+  const hasPaymentAccount =
+    invoice.showBankDetails !== false &&
+    invoice.selectedPaymentAccountId !== '' &&
+    Boolean(bank.bankName || bank.accountNumber || bank.upiId);
 
   const statusMap = {
     draft: { label: 'DRAFT', bg: '#6B7280', text: '#FFFFFF' },
+    finalized: { label: 'FINALIZED', bg: '#2563EB', text: '#FFFFFF' },
     pending: { label: 'PENDING', bg: '#D97706', text: '#FFFFFF' },
     paid: { label: 'PAID IN FULL', bg: '#059669', text: '#FFFFFF' },
     overdue: { label: 'OVERDUE', bg: '#DC2626', text: '#FFFFFF' }
@@ -176,6 +196,21 @@ export default function InvoicePaper({
               Tax ID: {client.vatOrTaxNumber}
             </p>
           )}
+
+          {/* Handled App / Website by ZasDevLabs (Clients -> Apps -> Invoices) */}
+          {(invoice.appName || client.handledApps || invoice.projectOrApp) && (
+            <div className="mt-2.5 pt-2 border-t border-gray-100">
+              <span
+                className="text-[9px] font-bold uppercase tracking-wider block font-heading"
+                style={{ color: accentColor }}
+              >
+                App / Website Target
+              </span>
+              <p className="text-xs font-semibold text-gray-800 mt-0.5 flex items-center gap-1.5">
+                <span>{invoice.appName || client.handledApps || invoice.projectOrApp}</span>
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-col justify-between">
@@ -191,7 +226,7 @@ export default function InvoicePaper({
               style={{ color: accentColor }}
             >
               {currencySymbol}
-              {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {totalDue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
           {invoice.dueDate && (
@@ -252,8 +287,8 @@ export default function InvoicePaper({
 
           {discountTotal > 0 && (
             <div className="flex justify-between text-green-700">
-              <span>Discount:</span>
-              <span>-{currencySymbol}{discountTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="truncate pr-2">{invoice.discountLabel || 'Discount'}:</span>
+              <span className="shrink-0">-{currencySymbol}{discountTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           )}
 
@@ -283,68 +318,107 @@ export default function InvoicePaper({
               style={{ color: accentColor }}
             >
               {currencySymbol}
-              {Math.max(0, grandTotal - (parseFloat(invoice.amountPaid) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {totalDue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
         </div>
       </div>
 
       {/* 5. Remittance Instructions & Bank Details */}
-      {invoice.showBankDetails !== false && (bank.bankName || bank.accountNumber || bank.upiId) && (
-        <div className="py-4 border-t border-gray-200 grid grid-cols-2 gap-4 bg-gray-50 rounded-xl p-3.5 mt-2">
-          <div>
+      {hasPaymentAccount && (
+        <div className="mt-4 border-t border-gray-200 bg-gray-50/90 rounded-xl p-4">
+          {/* Unified horizontal header bar */}
+          <div className="flex items-center justify-between pb-2 mb-3 border-b border-gray-200/80">
             <span
-              className="text-[10px] font-bold uppercase tracking-wider block mb-1 font-heading"
+              className="text-[10px] font-bold uppercase tracking-wider block font-heading"
               style={{ color: accentColor }}
             >
               Payment Remittance Details
             </span>
             {bank.bankName && (
-              <p className="text-xs font-semibold text-gray-800">{bank.bankName}</p>
-            )}
-            {bank.accountName && (
-              <p className="text-[11px] text-gray-600">Account: {bank.accountName}</p>
-            )}
-            {bank.accountNumber && (
-              <p className="text-[11px] font-mono text-gray-700 font-medium">
-                A/C No: {bank.accountNumber}
-              </p>
+              <span className="text-xs font-bold text-gray-800 font-heading">
+                {bank.bankName}
+              </span>
             )}
           </div>
 
-          <div className="text-[11px] text-gray-600 space-y-0.5">
-            {bank.routingOrIfsc && (
-              <p>
-                <span className="text-gray-400">IFSC / Routing: </span>
-                <span className="font-mono font-medium text-gray-800">{bank.routingOrIfsc}</span>
-              </p>
-            )}
-            {bank.swiftBic && (
-              <p>
-                <span className="text-gray-400">SWIFT / BIC: </span>
-                <span className="font-mono font-medium text-gray-800">{bank.swiftBic}</span>
-              </p>
-            )}
-            {bank.upiId && (
-              <p>
-                <span className="text-gray-400">UPI ID: </span>
-                <span className="font-mono font-medium text-gray-800">{bank.upiId}</span>
-              </p>
-            )}
-            {bank.wireNotes && (
-              <p className="text-[10px] text-gray-500 italic mt-1">{bank.wireNotes}</p>
-            )}
+          {/* 2-Column layout horizontally aligned */}
+          <div className="grid grid-cols-2 gap-8 items-start">
+            {/* Left Column: Account & Account Number with clear vertical spacing */}
+            <div className="space-y-2.5 text-[11px]">
+              {bank.accountName && (
+                <p className="text-gray-900 leading-normal">
+                  <span className="text-gray-500 font-normal">Account: </span>
+                  <span className="font-semibold text-gray-900">{bank.accountName}</span>
+                </p>
+              )}
+              {bank.accountNumber && (
+                <p className="text-gray-900 leading-normal pt-1">
+                  <span className="text-gray-500 font-normal">A/C No: </span>
+                  <span className="font-mono font-bold text-gray-900 tracking-wide">
+                    {bank.accountNumber}
+                  </span>
+                </p>
+              )}
+              {!bank.accountName && !bank.accountNumber && bank.name && (
+                <p className="text-gray-800 font-medium">{bank.name}</p>
+              )}
+            </div>
+
+            {/* Right Column: IFSC/Routing, SWIFT/BIC, UPI ID */}
+            <div className="space-y-2.5 text-[11px]">
+              {bank.routingOrIfsc && (
+                <p className="leading-normal">
+                  <span className="text-gray-500 font-normal">IFSC / Routing: </span>
+                  <span className="font-mono font-medium text-gray-900">{bank.routingOrIfsc}</span>
+                </p>
+              )}
+              {bank.swiftBic && (
+                <p className="leading-normal pt-1">
+                  <span className="text-gray-500 font-normal">SWIFT / BIC: </span>
+                  <span className="font-mono font-medium text-gray-900">{bank.swiftBic}</span>
+                </p>
+              )}
+              {bank.upiId && (
+                <p className="leading-normal pt-1">
+                  <span className="text-gray-500 font-normal">UPI ID: </span>
+                  <span className="font-mono font-medium text-gray-900">{bank.upiId}</span>
+                </p>
+              )}
+            </div>
           </div>
+
+          {bank.wireNotes && (
+            <div className="mt-3 pt-2 border-t border-gray-200/60 text-[10px] text-gray-500 italic leading-normal">
+              <span className="font-medium not-italic text-gray-600 mr-1">Note:</span>
+              {bank.wireNotes}
+            </div>
+          )}
         </div>
       )}
 
       {/* 6. Terms & Notes */}
-      <div className="pt-5 mt-3 border-t border-gray-200 text-[10px] text-gray-500 space-y-1.5">
-        {invoice.notes && (
-          <p className="font-medium text-gray-700">{invoice.notes}</p>
-        )}
-        <div className="pt-2 flex justify-end text-[11px] text-gray-500 font-medium">
-          <span>Thank you for choosing ZasDevLabs!</span>
+      <div className="pt-4 mt-3 border-t border-gray-200 text-xs">
+        <div className="flex flex-col sm:flex-row justify-between items-end gap-3">
+          <div className="text-left max-w-[55%]">
+            {invoice.paymentTerms && (
+              <p className="text-[10px] text-gray-500 leading-relaxed">
+                <span className="font-semibold text-gray-600">Terms: </span>
+                {invoice.paymentTerms}
+              </p>
+            )}
+          </div>
+
+          <div className="text-right space-y-1.5 ml-auto shrink-0">
+            {invoice.notes && (
+              <p className="text-[11px] font-semibold text-gray-800 tracking-tight">
+                {invoice.notes}
+              </p>
+            )}
+            <p className="text-[11px] text-gray-500 font-medium">
+              Thank you for choosing ZasDevLabs!
+            </p>
+          </div>
         </div>
       </div>
     </div>

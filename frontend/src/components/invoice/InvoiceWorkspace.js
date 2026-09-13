@@ -12,12 +12,17 @@ import {
   ShieldCheck,
   Layout,
   Eye,
-  Sliders
+  Sliders,
+  Save,
+  AlertCircle,
+  X,
+  Globe
 } from 'lucide-react';
 import Logo from '../Logo';
 import InvoiceForm from './InvoiceForm';
 import InvoicePreviewContainer from './InvoicePreviewContainer';
 import ClientManager from './ClientManager';
+import AppManagerModal from './AppManagerModal';
 import BusinessProfileSettings from './BusinessProfileSettings';
 import StorageSettingsModal from './StorageSettingsModal';
 import InvoiceHistoryModal from './InvoiceHistoryModal';
@@ -57,13 +62,20 @@ export default function InvoiceWorkspace() {
     currencySymbol: baseProfile?.defaultCurrencySymbol || '$',
     accentColor: baseProfile?.defaultAccentColor || '#00BFFF',
     sender: baseProfile || DEFAULT_BUSINESS_PROFILE,
+    selectedPaymentAccountId: baseProfile?.paymentAccounts?.[0]?.id || '',
+    appName: '',
     client: {
+      id: '',
       name: '',
       company: '',
       email: '',
       phone: '',
       address: '',
-      vatOrTaxNumber: ''
+      vatOrTaxNumber: '',
+      clientNumber: '',
+      apps: [],
+      handledApps: '',
+      accentColor: ''
     },
     items: [
       {
@@ -79,7 +91,7 @@ export default function InvoiceWorkspace() {
     shippingOrExtra: 0,
     notes: 'Thank you for your business! Please reference invoice number during remittance.',
     paymentTerms: baseProfile?.defaultTerms || DEFAULT_BUSINESS_PROFILE.defaultTerms,
-    bankDetails: baseProfile?.bankDetails || DEFAULT_BUSINESS_PROFILE.bankDetails,
+    bankDetails: baseProfile?.paymentAccounts?.[0] || baseProfile?.bankDetails || DEFAULT_BUSINESS_PROFILE.bankDetails,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }), [todayStr, dueStr]);
@@ -92,10 +104,25 @@ export default function InvoiceWorkspace() {
 
   // Modals
   const [showClientModal, setShowClientModal] = useState(false);
+  const [showAppModal, setShowAppModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showStorageModal, setShowStorageModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [saveBanner, setSaveBanner] = useState('');
+  const [clientPrompt, setClientPrompt] = useState(null);
+
+  // Total Apps count across all clients for badge
+  const totalAppsCount = React.useMemo(() => {
+    let count = 0;
+    clients.forEach((c) => {
+      if (Array.isArray(c.apps) && c.apps.length > 0) {
+        count += c.apps.length;
+      } else if (typeof c.handledApps === 'string' && c.handledApps.trim()) {
+        count += c.handledApps.split(',').filter((s) => s.trim()).length;
+      }
+    });
+    return count;
+  }, [clients]);
 
   // Load initial data from Storage Provider
   const loadAllData = useCallback(async () => {
@@ -144,12 +171,57 @@ export default function InvoiceWorkspace() {
   const handleSaveInvoice = async (invToSave = activeInvoice) => {
     if (!invToSave) return;
     try {
-      const updated = {
+      let finalInv = {
         ...invToSave,
         accentColor,
         sender: profile
       };
-      const saved = await storage.saveInvoice(updated);
+
+      // Requirement 4: If payment option was "Custom", save this new payment account to profile's payment accounts list
+      if (
+        invToSave.selectedPaymentAccountId === 'custom' &&
+        invToSave.bankDetails &&
+        (invToSave.bankDetails.bankName ||
+          invToSave.bankDetails.accountNumber ||
+          invToSave.bankDetails.upiId ||
+          invToSave.bankDetails.name)
+      ) {
+        const newAccount = {
+          id: `acc_${Date.now()}`,
+          name:
+            invToSave.bankDetails.name?.trim() ||
+            invToSave.bankDetails.bankName ||
+            `Account ending in ${invToSave.bankDetails.accountNumber?.slice(-4) || 'Custom'}`,
+          bankName: invToSave.bankDetails.bankName || '',
+          accountName: invToSave.bankDetails.accountName || '',
+          accountNumber: invToSave.bankDetails.accountNumber || '',
+          routingOrIfsc: invToSave.bankDetails.routingOrIfsc || '',
+          swiftBic: invToSave.bankDetails.swiftBic || '',
+          upiId: invToSave.bankDetails.upiId || '',
+          wireNotes: invToSave.bankDetails.wireNotes || ''
+        };
+
+        const existingAccounts = Array.isArray(profile?.paymentAccounts) ? [...profile.paymentAccounts] : [];
+        existingAccounts.push(newAccount);
+
+        const updatedProfile = {
+          ...profile,
+          paymentAccounts: existingAccounts,
+          bankDetails: existingAccounts[0] || profile.bankDetails
+        };
+
+        await storage.saveBusinessProfile(updatedProfile);
+        setProfile(updatedProfile);
+
+        finalInv = {
+          ...finalInv,
+          selectedPaymentAccountId: newAccount.id,
+          bankDetails: newAccount,
+          sender: updatedProfile
+        };
+      }
+
+      const saved = await storage.saveInvoice(finalInv);
       setActiveInvoice(saved);
 
       // Refresh invoice list
@@ -162,6 +234,94 @@ export default function InvoiceWorkspace() {
     } catch (err) {
       alert('Error saving invoice: ' + err.message);
     }
+  };
+
+  // Requirement 3: When saving invoice with modified/new client info, prompt user to update or create
+  const handleInitiateSave = async () => {
+    if (!activeInvoice) return;
+    const currentClient = activeInvoice.client;
+    if (currentClient && (currentClient.name || currentClient.company)) {
+      if (currentClient.id) {
+        const matched = clients.find((c) => String(c.id) === String(currentClient.id));
+        if (matched) {
+          const isModified =
+            (currentClient.name || '').trim() !== (matched.name || '').trim() ||
+            (currentClient.company || '').trim() !== (matched.company || '').trim() ||
+            (currentClient.email || '').trim() !== (matched.email || '').trim() ||
+            (currentClient.phone || '').trim() !== (matched.phone || '').trim() ||
+            (currentClient.address || '').trim() !== (matched.address || '').trim() ||
+            (currentClient.vatOrTaxNumber || '').trim() !== (matched.vatOrTaxNumber || '').trim() ||
+            (currentClient.handledApps || '').trim() !== (matched.handledApps || '').trim() ||
+            (currentClient.accentColor || '') !== (matched.accentColor || '');
+
+          if (isModified) {
+            setClientPrompt({
+              isOpen: true,
+              mode: 'modified',
+              existingClient: matched,
+              clientData: { ...currentClient }
+            });
+            return;
+          }
+        }
+      } else {
+        // No client ID stored, but company or name is entered
+        setClientPrompt({
+          isOpen: true,
+          mode: 'new',
+          clientData: { ...currentClient }
+        });
+        return;
+      }
+    }
+
+    // Direct save if no client modifications
+    await handleSaveInvoice(activeInvoice);
+  };
+
+  const handleConfirmUpdateClient = async () => {
+    if (!clientPrompt) return;
+    try {
+      const updatedClient = {
+        ...clientPrompt.existingClient,
+        ...clientPrompt.clientData
+      };
+      await handleSaveClient(updatedClient);
+      const invToSave = {
+        ...activeInvoice,
+        client: updatedClient
+      };
+      setClientPrompt(null);
+      await handleSaveInvoice(invToSave);
+    } catch (err) {
+      alert('Error updating client: ' + err.message);
+    }
+  };
+
+  const handleConfirmCreateNewClient = async () => {
+    if (!clientPrompt) return;
+    try {
+      const newSeq = `CLT${Math.floor(100 + Math.random() * 900)}`;
+      const newClient = {
+        ...clientPrompt.clientData,
+        id: `cli_${Date.now()}`,
+        clientNumber: newSeq
+      };
+      await handleSaveClient(newClient);
+      const invToSave = {
+        ...activeInvoice,
+        client: newClient
+      };
+      setClientPrompt(null);
+      await handleSaveInvoice(invToSave);
+    } catch (err) {
+      alert('Error creating new client: ' + err.message);
+    }
+  };
+
+  const handleConfirmSkipClientSave = async () => {
+    setClientPrompt(null);
+    await handleSaveInvoice(activeInvoice);
   };
 
   // Handle client save / update
@@ -234,6 +394,7 @@ export default function InvoiceWorkspace() {
   // Select client from manager into active invoice
   const handleSelectClientForInvoice = (client) => {
     if (!activeInvoice) return;
+    const clientColor = client.accentColor || profile?.defaultAccentColor || '#00BFFF';
     setActiveInvoice({
       ...activeInvoice,
       client: {
@@ -243,11 +404,16 @@ export default function InvoiceWorkspace() {
         email: client.email || '',
         phone: client.phone || '',
         address: client.address || '',
-        vatOrTaxNumber: client.vatOrTaxNumber || ''
+        vatOrTaxNumber: client.vatOrTaxNumber || '',
+        clientNumber: client.clientNumber || '',
+        handledApps: client.handledApps || '',
+        accentColor: client.accentColor || ''
       },
+      accentColor: clientColor,
       currency: client.currency || activeInvoice.currency,
       currencySymbol: client.currencySymbol || activeInvoice.currencySymbol
     });
+    setAccentColor(clientColor);
   };
 
   if (loading || !activeInvoice) {
@@ -278,9 +444,9 @@ export default function InvoiceWorkspace() {
 
             <div className="flex items-center gap-2.5">
               <Logo size={28} />
-              <div>
+              <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-sm font-bold font-heading text-white leading-none">
+                  <h1 className="text-sm font-bold font-heading text-white">
                     ZasDevLabs
                   </h1>
                   <span className="px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-primary text-[10px] font-semibold tracking-wider uppercase font-mono">
@@ -302,7 +468,7 @@ export default function InvoiceWorkspace() {
                   </button>
                 </div>
                 <p className="text-[11px] text-gray-400 hidden sm:block">
-                  Offline-First Vector Billing & PDF Generator
+                  Vector Billing & PDF Generator
                 </p>
               </div>
             </div>
@@ -328,6 +494,20 @@ export default function InvoiceWorkspace() {
               <span className="hidden md:inline">History</span>
               <span className="font-mono text-[10px] bg-white/10 px-1.5 py-0.2 rounded-full">
                 {invoices.length}
+              </span>
+            </button>
+
+            {/* Requirement 5: Apps badge on the left of Clients badge */}
+            <button
+              type="button"
+              onClick={() => setShowAppModal(true)}
+              className="px-3 py-1.5 bg-surface-container hover:bg-white/10 border border-white/10 rounded-xl text-xs font-medium text-gray-300 hover:text-white flex items-center gap-1.5 transition-colors"
+              title="Manage Apps & Websites Portfolio (Clients -> Apps)"
+            >
+              <Globe size={14} className="text-cyan-400" />
+              <span className="hidden md:inline">Apps</span>
+              <span className="font-mono text-[10px] bg-white/10 px-1.5 py-0.2 rounded-full">
+                {totalAppsCount}
               </span>
             </button>
 
@@ -419,6 +599,10 @@ export default function InvoiceWorkspace() {
             onOpenClientManager={() => setShowClientModal(true)}
             onOpenBusinessProfile={() => setShowProfileModal(true)}
             onSaveClient={handleSaveClient}
+            onSelectAccentColor={(c) => {
+              setAccentColor(c);
+              setActiveInvoice((prev) => ({ ...prev, accentColor: c }));
+            }}
           />
         </div>
 
@@ -435,12 +619,42 @@ export default function InvoiceWorkspace() {
               setAccentColor(c);
               setActiveInvoice((prev) => ({ ...prev, accentColor: c }));
             }}
-            onSaveInvoice={() => handleSaveInvoice(activeInvoice)}
+            onSaveInvoice={handleInitiateSave}
           />
         </div>
       </main>
 
       {/* 3. Modals */}
+      <AppManagerModal
+        isOpen={showAppModal}
+        onClose={() => setShowAppModal(false)}
+        clients={clients}
+        onSaveClient={handleSaveClient}
+        onSelectAppForInvoice={(app) => {
+          const client = clients.find((c) => String(c.id) === String(app.clientId));
+          if (client) {
+            handleSelectClientForInvoice(client);
+          }
+          setActiveInvoice((prev) => ({
+            ...prev,
+            appName: app.name
+          }));
+        }}
+        onCreateInvoiceForApp={(app) => {
+          const client = clients.find((c) => String(c.id) === String(app.clientId));
+          const blank = createBlankInvoice(profile);
+          if (client) {
+            blank.client = { ...client };
+            if (client.accentColor) {
+              blank.accentColor = client.accentColor;
+              setAccentColor(client.accentColor);
+            }
+          }
+          blank.appName = app.name;
+          setActiveInvoice(blank);
+        }}
+      />
+
       <ClientManager
         isOpen={showClientModal}
         onClose={() => setShowClientModal(false)}
@@ -475,6 +689,101 @@ export default function InvoiceWorkspace() {
         onDeleteInvoice={handleDeleteInvoice}
         onCreateNewInvoice={handleCreateNewInvoice}
       />
+
+      {/* Requirement 3: Client Save / Update Decision Modal */}
+      {clientPrompt?.isOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-surface border border-white/10 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl animate-fadeInUp">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2 text-primary">
+                <AlertCircle size={20} />
+                <h3 className="font-heading font-semibold text-sm text-white">
+                  {clientPrompt.mode === 'modified'
+                    ? 'Update Client in Directory?'
+                    : 'Save New Client to Directory?'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setClientPrompt(null)}
+                className="text-gray-400 hover:text-white"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-300 leading-relaxed">
+              {clientPrompt.mode === 'modified' ? (
+                <>
+                  You made modifications to the billing info for{' '}
+                  <span className="font-semibold text-white">
+                    {clientPrompt.existingClient.company || clientPrompt.existingClient.name}
+                  </span>
+                  . Would you like to update their record in your Client Directory, or create a brand new client with this info?
+                </>
+              ) : (
+                <>
+                  <span className="font-semibold text-white">
+                    {clientPrompt.clientData.company || clientPrompt.clientData.name}
+                  </span>{' '}
+                  is not yet saved in your Client Directory. Would you like to save it to your directory for future invoices?
+                </>
+              )}
+            </p>
+
+            <div className="space-y-2 pt-2">
+              {clientPrompt.mode === 'modified' ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleConfirmUpdateClient}
+                    className="w-full py-2.5 px-3 bg-primary text-primary-fg rounded-xl text-xs font-semibold flex items-center justify-center gap-2 hover:bg-opacity-90 transition-all shadow-md shadow-primary/20"
+                  >
+                    <Check size={14} />
+                    <span>Update Existing Client in Directory</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleConfirmCreateNewClient}
+                    className="w-full py-2.5 px-3 bg-surface-container hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-white flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Plus size={14} />
+                    <span>Create as a New Client</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleConfirmSkipClientSave}
+                    className="w-full py-1.5 text-center text-xs text-gray-400 hover:text-gray-200 transition-colors"
+                  >
+                    Keep Changes on This Invoice Only
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleConfirmCreateNewClient}
+                    className="w-full py-2.5 px-3 bg-primary text-primary-fg rounded-xl text-xs font-semibold flex items-center justify-center gap-2 hover:bg-opacity-90 transition-all shadow-md shadow-primary/20"
+                  >
+                    <Plus size={14} />
+                    <span>Save New Client to Directory</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleConfirmSkipClientSave}
+                    className="w-full py-1.5 text-center text-xs text-gray-400 hover:text-gray-200 transition-colors"
+                  >
+                    Save Invoice Only (Skip Directory)
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

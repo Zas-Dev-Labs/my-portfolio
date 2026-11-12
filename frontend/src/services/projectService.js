@@ -11,6 +11,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
+import { getCollectionName } from './environment';
 
 export const INITIAL_DEV_PROJECTS = [
   {
@@ -114,14 +115,15 @@ export const INITIAL_3D_PROJECTS = [
   }
 ];
 
-const PROJECTS_COLLECTION = 'projects';
+const getProjectsCollection = () => collection(db, getCollectionName('projects'));
 
 export async function seedInitialProjects() {
   try {
     const batch = writeBatch(db);
     const allInit = [...INITIAL_DEV_PROJECTS, ...INITIAL_3D_PROJECTS];
+    const colName = getCollectionName('projects');
     for (const proj of allInit) {
-      const docRef = doc(collection(db, PROJECTS_COLLECTION));
+      const docRef = doc(collection(db, colName));
       batch.set(docRef, {
         ...proj,
         createdAt: serverTimestamp(),
@@ -129,7 +131,7 @@ export async function seedInitialProjects() {
       });
     }
     await batch.commit();
-    console.log('Successfully seeded initial projects into Firestore');
+    console.log(`Successfully seeded initial projects into Firestore (${colName})`);
   } catch (err) {
     console.error('Error seeding projects:', err);
     throw err;
@@ -137,7 +139,8 @@ export async function seedInitialProjects() {
 }
 
 export function subscribeProjects(onSuccess, onError) {
-  const q = query(collection(db, PROJECTS_COLLECTION), orderBy('order', 'asc'));
+  const colName = getCollectionName('projects');
+  const q = query(collection(db, colName), orderBy('order', 'asc'));
   
   return onSnapshot(q, async (snapshot) => {
     if (snapshot.empty) {
@@ -179,7 +182,7 @@ export function subscribeProjects(onSuccess, onError) {
       onSuccess(items);
     }
   }, (err) => {
-    console.error('Firestore snapshot error:', err);
+    console.error(`Firestore snapshot error for ${colName}:`, err);
     const fallbackItems = [...INITIAL_DEV_PROJECTS, ...INITIAL_3D_PROJECTS].map((p, idx) => ({
       id: `default-${idx}`,
       ...p
@@ -219,8 +222,9 @@ export async function addProject(projectData) {
   const showFrom = projectData.showFrom || startedOn;
   const showTo = projectData.showTo || null;
   const isActive = projectData.isActive !== undefined ? Boolean(projectData.isActive) : true;
+  const colName = getCollectionName('projects');
 
-  const docRef = await addDoc(collection(db, PROJECTS_COLLECTION), {
+  const docRef = await addDoc(collection(db, colName), {
     ...projectData,
     isActive,
     startedOn,
@@ -239,8 +243,9 @@ export async function updateProject(id, projectData) {
   const showFrom = projectData.showFrom || startedOn;
   const showTo = projectData.showTo !== undefined ? (projectData.showTo || null) : null;
   const isActive = projectData.isActive !== undefined ? Boolean(projectData.isActive) : true;
+  const colName = getCollectionName('projects');
 
-  const docRef = doc(db, PROJECTS_COLLECTION, id);
+  const docRef = doc(db, colName, id);
   await updateDoc(docRef, {
     ...projectData,
     isActive,
@@ -253,6 +258,7 @@ export async function updateProject(id, projectData) {
 }
 
 export async function deleteProject(id) {
-  const docRef = doc(db, PROJECTS_COLLECTION, id);
+  const colName = getCollectionName('projects');
+  const docRef = doc(db, colName, id);
   await deleteDoc(docRef);
 }

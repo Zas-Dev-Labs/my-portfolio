@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInAnonymously,
   signOut,
   onAuthStateChanged
 } from 'firebase/auth';
@@ -26,7 +27,8 @@ import {
   Check,
   Calendar,
   Eye,
-  EyeOff
+  EyeOff,
+  FileText
 } from 'lucide-react';
 import { auth } from '../firebase';
 import {
@@ -36,6 +38,11 @@ import {
   deleteProject,
   seedInitialProjects
 } from '../services/projectService';
+import {
+  getEnvironmentMetadata,
+  setEnvironmentMode,
+  subscribeEnvironmentChanges
+} from '../services/environment';
 import Logo from './Logo';
 
 export default function Admin() {
@@ -49,6 +56,7 @@ export default function Admin() {
     }
   });
   const activeUser = user || localUser;
+  const [envMeta, setEnvMeta] = useState(getEnvironmentMetadata());
 
   const [authLoading, setAuthLoading] = useState(true);
   const [username, setUsername] = useState('');
@@ -119,9 +127,19 @@ export default function Admin() {
     return () => unsubscribe();
   }, []);
 
-  // Listen to projects from Firestore
+  // Listen to environment changes
+  useEffect(() => {
+    const unsub = subscribeEnvironmentChanges((newMeta) => {
+      setEnvMeta(newMeta);
+      setLoadingData(true);
+    });
+    return () => unsub();
+  }, []);
+
+  // Listen to projects from Firestore (re-binds when activeUser or environment changes)
   useEffect(() => {
     if (!activeUser) return;
+    setLoadingData(true);
     const unsubscribe = subscribeProjects(
       (items) => {
         setProjects(items);
@@ -133,7 +151,7 @@ export default function Admin() {
       }
     );
     return () => unsubscribe();
-  }, [activeUser]);
+  }, [activeUser, envMeta.activeEnvironment]);
 
   // Auth Submit
   const handleAuth = async (e) => {
@@ -144,60 +162,86 @@ export default function Admin() {
     const inputPass = password.trim();
 
     if (!inputUser || !inputPass) {
-      setAuthError("Credentials don't match.");
+      setAuthError('Please enter both username and password.');
       return;
     }
 
-    // Read expected admin credentials from environment variables only (no hardcoded fallbacks)
-    const expectedUsername = (process.env.REACT_APP_ADMIN_USERNAME || '').trim();
-    const expectedPassword = (process.env.REACT_APP_ADMIN_PASSWORD || '').trim();
-
-    if (!expectedUsername || !expectedPassword) {
-      setAuthError("Credentials don't match.");
-      return;
-    }
-
-    // Verify username and password strictly against environment variables
-    const isUserMatch =
-      inputUser.toLowerCase() === expectedUsername.toLowerCase() ||
-      (expectedUsername.indexOf('@') === -1 &&
-        inputUser.toLowerCase() === `${expectedUsername.toLowerCase()}@zasdevlabs.com`);
-
-    const isPassMatch = inputPass === expectedPassword;
-
-    if (!isUserMatch || !isPassMatch) {
-      setAuthError("Credentials don't match.");
-      return;
-    }
-
-    // Credentials match! Sign in to Firebase Auth or set fallback session
-    const adminEmail = expectedUsername.includes('@')
-      ? expectedUsername.toLowerCase()
-      : `${expectedUsername.toLowerCase()}@zasdevlabs.com`;
+    setSubmitting(true);
 
     try {
-      await signInWithEmailAndPassword(auth, adminEmail, expectedPassword);
-    } catch (err) {
-      if (
-        err.code === 'auth/user-not-found' ||
-        err.code === 'auth/invalid-credential'
-      ) {
-        try {
-          await createUserWithEmailAndPassword(auth, adminEmail, expectedPassword);
-        } catch (createErr) {
-          console.warn('Firebase Admin auto-provision error, activating fallback session:', createErr);
+      // 1. Authenticate via server-side endpoint
+      let isVerified = false;
+      let adminEmail = inputUser.includes('@') ? inputUser.toLowerCase() : `${inputUser.toLowerCase()}@zasdevlabs.com`;
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: inputUser, password: inputPass })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          isVerified = true;
+          if (data.email) adminEmail = data.email;
+        } else if (!res.ok && res.status === 401) {
+          // If server explicitly rejected, check direct Firebase login before erroring
+          isVerified = false;
         }
-      } else {
-        console.warn('Firebase Auth signin error, activating fallback session:', err);
+      } catch (netErr) {
+        console.warn('Backend login endpoint unavailable, trying direct auth:', netErr);
       }
-    }
 
-    // Ensure session is saved locally for immediate access
-    const adminSession = { email: adminEmail, uid: 'local-admin' };
-    setLocalUser(adminSession);
-    try {
-      sessionStorage.setItem('admin_session', JSON.stringify(adminSession));
-    } catch (e) {}
+      // 2. Try Firebase Auth signin
+      let fbUser = null;
+      try {
+        const cred = await signInWithEmailAndPassword(auth, adminEmail, inputPass);
+        fbUser = cred.user;
+        isVerified = true;
+      } catch (err) {
+        if (
+          err.code === 'auth/user-not-found' ||
+          err.code === 'auth/invalid-credential' ||
+          err.code === 'auth/wrong-password'
+        ) {
+          if (isVerified) {
+            try {
+              const newCred = await createUserWithEmailAndPassword(auth, adminEmail, inputPass);
+              fbUser = newCred.user;
+            } catch (createErr) {
+              try {
+                const anonCred = await signInAnonymously(auth);
+                fbUser = anonCred.user;
+              } catch (anonErr) {
+                console.warn('Firebase anonymous fallback error:', anonErr);
+              }
+            }
+          }
+        } else if (isVerified) {
+          try {
+            const anonCred = await signInAnonymously(auth);
+            fbUser = anonCred.user;
+          } catch (anonErr) {}
+        }
+      }
+
+      if (!isVerified) {
+        setAuthError('Invalid username or password.');
+        setSubmitting(false);
+        return;
+      }
+
+      // 3. Set active local session
+      const adminSession = { email: adminEmail, uid: fbUser?.uid || 'local-admin' };
+      setLocalUser(adminSession);
+      try {
+        sessionStorage.setItem('admin_session', JSON.stringify(adminSession));
+      } catch (err) {}
+    } catch (generalErr) {
+      console.error('Authentication error:', generalErr);
+      setAuthError('Authentication error. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -457,13 +501,42 @@ export default function Admin() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-heading font-semibold text-white text-lg">Portfolio Control Center</h1>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">Live DB</span>
+                <div className="flex items-center gap-1.5 bg-surface-container px-2 py-0.5 rounded-lg border border-white/10">
+                  <span
+                    className="w-1.5 h-1.5 rounded-full animate-pulse"
+                    style={{ backgroundColor: envMeta.accentColor }}
+                  />
+                  <span
+                    className="text-[10px] font-mono font-semibold"
+                    style={{ color: envMeta.accentColor }}
+                  >
+                    {envMeta.badgeText}
+                  </span>
+                  <select
+                    value={envMeta.isManualOverride ? envMeta.activeEnvironment : 'auto'}
+                    onChange={(e) => setEnvironmentMode(e.target.value)}
+                    className="bg-transparent text-[10px] text-gray-300 font-mono focus:outline-none cursor-pointer border-l border-white/10 pl-1.5 ml-1"
+                    title="Switch Firestore database target environment"
+                  >
+                    <option value="auto" className="bg-[#1e1e1e] text-gray-200">Auto (Domain)</option>
+                    <option value="preview" className="bg-[#1e1e1e] text-amber-300">Dev / Preview DB</option>
+                    <option value="live" className="bg-[#1e1e1e] text-emerald-300">Live Production DB</option>
+                  </select>
+                </div>
               </div>
               <p className="text-xs text-gray-400">Logged in as {activeUser.email}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              to="/tools/invoice"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary/10 border border-primary/20 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-fg transition-all shadow-sm"
+              title="Open ZasDevLabs Invoice Generator"
+            >
+              <FileText size={14} />
+              <span>Invoice Generator</span>
+            </Link>
             <button
               onClick={handleSeed}
               className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-container border border-white/10 text-xs font-medium text-gray-300 hover:text-white hover:border-white/20 transition-all"
